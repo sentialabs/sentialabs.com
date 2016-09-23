@@ -71,6 +71,7 @@ GEM
     jekyll-github-metadata (2.0.2)
       jekyll (~> 3.1)
       octokit (~> 4.0)
+    jekyll-gravatar (0.1.0)
     jekyll-mentions (1.2.0)
       activesupport (~> 4.0)
       html-pipeline (~> 2.3)
@@ -134,6 +135,7 @@ PLATFORMS
 
 DEPENDENCIES
   github-pages
+  jekyll-gravatar
 
 BUNDLED WITH
    1.11.2

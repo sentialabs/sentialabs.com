@@ -1,6 +1,8 @@
-name: sentialabs.com
+name: sentialabs.io
 highlighter: rouge
 exclude: [ Gemfile, Gemfile.lock, README.md ]
+url: sentialabs.io
 
 gems:
   - jekyll-gist
+  - jekyll-gravatar

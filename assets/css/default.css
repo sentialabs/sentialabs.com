@@ -1,9 +1,14 @@
 body {
+  margin: 0;
   margin-top: 90px;
 }
 
-#wrapper {
 
+#wrapper {
+}
+
+#wrapper img {
+  max-width: 100%
 }
 
 .navbar {
@@ -12,11 +17,11 @@ body {
 }
 
 .footer {
-  position: absolute;
-  bottom: 0;
+  margin-top: 60px;
   width: 100%;
   line-height: 60px;
   /* Set the fixed height of the footer here */
   height: 70px;
   background-color: #f5f5f5;
+  border-top: 1px solid #f0f0f0;
 }
