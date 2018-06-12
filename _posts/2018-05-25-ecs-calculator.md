@@ -101,8 +101,12 @@ The number of CPU units specifies the minimum amount of CPU reserved for a conta
 
 Besides, containers also share their unallocated CPU units with other containers on the instance with the same ratio as their allocated amount. **For example**, if you have two tasks running on a `t2.medium` each with 0 CPU units, each container of each task will effectively get 1024 CPU units since no other container has reserved them.
 
-In addition to such benefits of using ECS containers, the data given in the table above can give input to your choices of EC2 instance types or designing ECS containers on your instances.
+Whereas the CPU units can be reserved with soft limit because containers can burst above their provision, the Memory reservation has to stay within the allocated amount.
 
-Whereas the CPU units can be reserved with soft limit because containers can burst above their provision, the Memory reservation has to stay within the allocated amount. 
+**Example:**
 
-**For example**, you need a configuration of 332 memory units. If you choose `t2.micro` as the EC2 instance type which offers 993 memory units, you can fit 2 containers in the instance (993/332 = 2.99 containers). However, if you choose `t2.small` which offers 2001 memory units, the memory resource would be more efficiently used because 2001/332 = 6.02 containers and not using the leftover 0.02 containers would be less wasteful than doing this with the leftover 0.99 containers.
+Let's assume that you need a minimum of 332 MBs of memory (memory units) for your container. If you choose `t2.micro` as the EC2 instance type which offers 993 memory units, you can fit 2 containers in the instance (993/332 = 2.99 containers). However, if you choose `t2.small` which offers 2001 memory units, the memory resource would be more efficiently used because 2001/332 = 6.02 containers and not using the leftover 0.02 containers would be less wasteful than doing this with the leftover 0.99 containers.
+
+Let's put it all together!
+
+You can choose the instance type according to the value of CPU/RAM (for which you have higher requirements). We have already described two examples above. Let's say, you 2 candidates for instance type: `t2.medium` and `t2.small`. In this specific case, you rely on CPU, because 2048 > 2001. Hence, logically you need to choose `t2.medium`. If we check efficiency of our choice, we can make the conclusion that selecting this type of the instance is not the best decision (3952/332 = 11.9 containers). So, if you take the next generation of the instance - `t2.large`, it would be the most optimal choice, because 7984/332 = 24 containers.
