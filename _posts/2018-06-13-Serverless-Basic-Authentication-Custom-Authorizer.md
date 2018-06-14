@@ -6,19 +6,19 @@ github: svdgraaf/serverless-basic-authentication
 author: svdgraaf
 ---
 
-In a recent project, we needed our api's to be able to work with external systems. These systems only supported http basic authentication (eg: username/password) for integrating with external systems.
+In a recent project, we needed our api's to be able to work with external systems. These systems only supported HTTP basic authentication (eg: username/password) for integrating with external systems.
 
-Of course, Basic HTTP Authentication is the easiest and most straight forward way to integrate things and comes build in, in almost any http client.
+Of course, Basic HTTP Authentication is the easiest and most straight forward way to integrate things and it's built in, in almost any HTTP client.
 
 If you want to read more about basic authentication, I suggest you take a look at the [wikipedia page](https://en.wikipedia.org/wiki/Basic_access_authentication) or [RFC7617](https://tools.ietf.org/html/rfc7617).
 
-Api Gateway
+API Gateway
 -----------
-HTTP Basic Authentication is a very simple standard, which is why almost everyone supports it. Except for Api Gateway. The easiest way to setup authentication on Api Gateway is either to use Api Keys or IAM authentication. Using IAM authentication makes you have to sign all requests. Using the Api Keys, you need to add a header (`x-api-key` to each request, with the api key in it).
+HTTP Basic Authentication is a very simple standard, which is why almost everyone supports it. But not API Gateway. The easiest way to setup authentication on API Gateway is either to use API Keys or IAM authentication. Using IAM authentication makes you have to sign all requests. Using the API Keys, you need to add a header (`x-api-key` to each request, with the api key in it).
 
-Fortunately, nowadays Api Gateway supports custom authorizers. Also, it is now possible to configure Api Gateway to get the api key from the custom authorizer. Which is everything we need to support basic authentication.
+Fortunately, nowadays API Gateway supports custom authorizers. Also, it is now possible to configure API Gateway to get the api key from the custom authorizer. Which is everything we need to support basic authentication.
 
-We have the user provide us with the Basic Authentication header (called `Authorization`). As a username, they pass the api key name, and as the password, they send the api key value. The client (browser) will do some magiuc (base64 encoding the username/password) and sends it along. We then pass the value of this header to the custom authorizer, which base64 decodes it, checks if the api key is valid, and forwards the api key value back to Api Gateway. Api Gateway will then use that api key and forward the context to the receiving endpoint (eg: Lambda function).
+We have the user provide us with the Basic Authentication header (called `Authorization`). As a username, they pass the api key name, and as the password, they send the API key value. The client (browser) will do some magic (base64 encoding the username/password) and sends it along. We then pass the value of this header to the custom authorizer, which base64 decodes it, checks if the API key is valid, and forwards the API key value back to API Gateway. API Gateway will then use that API key and forward the context to the receiving endpoint (eg: Lambda function).
 
 That looks like this:
 
@@ -81,7 +81,7 @@ def basicAuth(event, context):
     return authResponse
 ```
 
-The real magic is in the response code. In the AWS documentation this is fairly poorly documented but the magic is in the `usageIdentifierKey` return value. When this key is present. And Api Gateway is configured to get the key value from the custom authorizer, Api Gateway will use the value of this key as the api key. It needs to contain the *value* of the key, not the name, id or whatever, it's the actual value of the key (took me a while to figure that one out).
+The real magic is in the response code. In the AWS documentation this is fairly poorly documented but the magic is in the `usageIdentifierKey` return value. When this key is present and API Gateway is configured to get the key value from the custom authorizer, API Gateway will use the value of this key as the api key. It needs to contain the *value* of the key, not the name, id or whatever, it's the actual value of the key (took me a while to figure that one out).
 
 The `principalId` field is also forwarded in the event to the receiving lambda call of your api. You can also set additional context fields if needed, which are also forwarded to the receiving endpoint. You can find the whole spec in the [AWS Documentation page](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-lambda-authorizer-output.html) for it.
 
