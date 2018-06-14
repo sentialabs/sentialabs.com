@@ -92,19 +92,31 @@ Coming with such benefit, AWS Elastic Container Services (ECS) is a a highly sca
 
   </div>
 
-You can also find this information in yaml format [here](/assets/files/2018-05-25-ecs-calculator/ec2-instance-list.yml)
+❗️You can also find this information in yaml format [here](/assets/files/2018-05-25-ecs-calculator/ec2-instance-list.yml) 👈
 
-## How the data can help you to optimally scale and fit ECS containers in an EC2 instance?
-
+How the data can help you to optimally scale and fit ECS containers in an EC2 instance?
+==========================================================================================
 
 The number of CPU units specifies the minimum amount of CPU reserved for a container. The CPU units are effectively allocated in containers on an EC2 instance. One container can burst above its allocated units if no other containers are taking up resources. **For instance**, if you have two tasks running on a `t2.medium`, each with 1024 CPU units budgeted for its respective container, one task could take up the whole 2048 CPU units given that the other task is inactive.
 
 Besides, containers also share their unallocated CPU units with other containers on the instance with the same ratio as their allocated amount. **For example**, if you have two tasks running on a `t2.medium` each with 0 CPU units, each container of each task will effectively get 1024 CPU units since no other container has reserved them.
 
-Whereas the CPU units can be reserved with soft limit because containers can burst above their provision, the Memory reservation has to stay within the allocated amount.
+Whereas the CPU units can be reserved with soft limit because containers can burst above their provision, the Memory reservation has to stay within the allocated amount. If your container attempts to exceed the memory, the container is killed 😿 (this may require some testing to get it right).
 
-**Example:**
+It's also useful to understand how your container can effectively use the memory resources. The whole concept you can see below:
 
-Let's assume that you need a minimum of 332 MBs of memory (memory units) for your container. If you choose `t2.micro` as the EC2 instance type which offers 993 memory units, you can fit 2 containers in the instance (993/332 = 2.99 containers). However, if you choose `t2.small` which offers 2001 memory units, the memory resource would be more efficiently used because 2001/332 = 6.02 containers and not using the leftover 0.02 containers would be less wasteful than doing this with the leftover 0.99 containers.
+![memory](/assets/posts/2018-05-25-ecs-calculator/memory-resources.png)
+
+Let's assume your container normally uses 128 MiB of memory, but occasionally bursts to 256 MiB of memory for short periods of time. As an option, you can set a Memory Reservation of 128 MiB, and a Memory Limit of 300 MiB. This configuration would allow the container to only reserve 128 MiB of memory from the remaining resources on the container instance, but also allow the container to consume more memory resources when needed. The 3rd option is to use only Memory Limit, in this case memory can't burst above configured value.
+
+Examples
+====================
+
+Imagine that you need a minimum of 332 MBs of memory (memory units) for your container. If you choose `t2.micro` as the EC2 instance type which offers 993 memory units, you can fit 2 containers in the instance (993/332 = 2.99 containers). However, if you choose `t2.small` which offers 2001 memory units, the memory resource would be more efficiently used because 2001/332 = 6.02 containers and not using the leftover 0.02 containers would be less wasteful than doing this with the leftover 0.99 containers.
 
 But what if we need to combine CPU and memory together? Let's add our first example to this one. So, as a result, you have two candidates for instance type: `t2.medium` and `t2.small` and your task to choose the best option. You can choose the instance type according to the value of CPU/RAM for which you have higher requirements. And in our specific case, logically you need to choose `t2.medium`. If we check the efficiency of our choice, we can make the conclusion that selecting this type of the instance is not the best decision (3952/332 = 11.9 containers). So, if you take the next generation of the instance - `t2.large`, it would be the most optimal choice, because of 7984/332 = 24 containers. And by the way, it doesn't have any effect to the efficiency of CPU selection, because we have equal CPU values for `t2.medium` and `t2.large`(2048 CPU units in both cases).
+
+Summary
+====================
+
+We hope that this article would be useful in your day-to-day practice and help you to save money 💰
