@@ -19,3 +19,15 @@
   gravatar: b848022e4f5ea61552c5926620d29b82
   description: |
     Cloud Systems Consultant
+- id: veranikaisakova
+  name: Veranika Isakova
+  email: veranika.isakova@sentia.com
+  gravatar: d065174ad6d9cbb2b4216bdcaa741668
+  description: |
+    Junior Cloud System Engineer
+- id: hadoan
+  name: Ha Doan
+  email: ha.doan@sentia.com
+  gravatar: a40066a305c3aaf6ab24d5cb10a60f63
+  description: |
+    Junior Cloud System Engineer

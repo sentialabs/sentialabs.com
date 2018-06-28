@@ -148,3 +148,16 @@ img + em {
 #post .feature-last-column table tfoot tr:last-child td:last-child {
   background-color: #FFD098;
 }
+
+#post .ec2-table {
+  table-layout: fixed;
+  width: 500px;
+}
+
+#post .ec2-table table td:first-child {
+  background-color: #FFEFD5;
+}
+
+#post .ec2-table table th:first-child {
+  background-color: #FFA07A;
+}
