@@ -103,16 +103,14 @@ It is also useful to understand how your container can effectively use the memor
 
 ![memory](/assets/posts/2018-05-25-ecs-calculator/memory_resources.png)
 
-Let's assume your container normally uses 128 MBs of memory, but occasionally bursts to 256 MBs of memory for short periods of time. As an option, you can set a Memory Reservation of 128 MBs, and a Memory Limit of 300 MBs. This configuration would allow the container to only reserve 128 MBs of memory from the resources on the container instance, but also allows the container to consume more memory resources when needed.
-
-We can consider another scenario where you configure only Hard Memory Limit with no Memory Reservation. In this case the ECS container instance will deduct configured memory limit from memory resources of the container instance. We think that it is better to use exactly this option because by specifying only a Hard Memory Limit for your tasks you avoid running out of memory (ECS stops placing tasks on the instance, and docker kills any containers that try to go over the hard limit 😿), in other words, Hard Memory Limit exists for the optimal fit of containers in the instance.
+Let's assume your container normally uses 128 MBs of memory, but occasionally bursts to 256 MBs of memory for short periods of time. As an option, you can set a Memory Reservation of 128 MBs, and a Memory Limit of 300 MBs. This configuration would allow the container to only reserve 128 MBs of memory from the resources on the container instance, but also allows the container to consume more memory resources when needed. Another option is to only use the hard limit for the memory assignment. This way you can bound each container to a specific value and avoid containers fighting for resources and possibly crashing because of lack of memory units. Hard memory bound requires extensive profiling of your containers for optimal resource allocation.
 
 ## How the data can help you to optimally scale and fit ECS containers in an EC2 instance?
 
 Based on the soft/hard limit of CPU/Memory reservation, the approach of solving our current issue is taken according to the following steps.
-* Obtaining the number of the Memory units required for your largest container.
-* Optimally choosing the EC2 instance type that can budget those Memory units.
-* Calculating CPU units needed for your largest container.
+* Obtaining the number of the Memory units required for all your containers.
+* Optimally choosing the EC2 instance type that can host your largest container based on the memory units it requires.
+* Calculating CPU units needed for your all your containers.
 
 The related examples are given below.
 
@@ -124,9 +122,9 @@ Imagine that your largest container requires 332 memory units. If you choose `t2
 
 > So, (332 Mbs * 1024 CPU units) / 2001 Mbs = 169 CPU units.
 
-In another scenario, your largest container is provided with 1750 memory units. You can fit 1 container in the `t2.small` instance which reserves 2001 Memory units (2001/1750 = 1.14 containers). Else, the `t2.medium` instance which reserves 3952 Memory units makes it possible for 2 containers to fit in (3952/1750 = 2.25 containers). Then your containers will fit more efficiently in the `t2.small` instance than in the `t2.medium` instance with the same argument from the previous example applied. Let's calculate the CPU units then.
+In another scenario, your largest container is provided with 900 memory units and you would like to pick an instance that can host 4 containers. You can fit this amount of containers in the `t2.medium` instance which reserves 3952 Memory units (3952/900 = 4.39 containers). Also, the `t2.large` instance which reserves 7984 Memory units makes it possible for 4 containers to fit in as well (7984/900 = 8.87 containers). Then your containers will fit more efficiently in the `t2.medium` instance than in the `t2.large` instance because we need only 4 containers and 8 containers is to much for our purpose. Let's calculate the CPU units then.
 
-> (1750 Mbs * 2048 CPU units) / 3952 Mbs =  906 CPU units.
+> (900 Mbs * 2048 CPU units) / 3952 Mbs =  466 CPU units.
 
 The examples above are indeed based on the important idea: available resources should be used up for the sake of the efficiency. Therefore, in case you have troublesome after some time to find an EC2 instance type in the table that suits your needs, there are two options being advised:
 * Providing more Memory units if available to your largest container so that your unused resources will be efficiently decreased.
