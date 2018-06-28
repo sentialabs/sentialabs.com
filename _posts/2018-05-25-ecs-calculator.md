@@ -117,7 +117,7 @@ The related examples are given below.
 
 ## Examples
 
-Imagine that your largest container requires 332 memory units. If you choose `t2.micro` as the EC2 instance type which offers 993 memory units, you can fit 2 containers in the instance (993/332 = 2.99 containers). However, if you choose `t2.small` which offers 2001 memory units, the memory resource would be more efficiently used because 2001/332 = 6.02 containers and not using the leftover 0.02 containers would be less wasteful than doing this with the leftover 0.99 containers. In this way, your containers fit more efficiently in the `t2.small` instance than in the `t2.micro` instance. The next question is how can we calculate CPU for your container. The amount for CPU units you can easily calculate using this ratio:
+Imagine that your largest container requires 332 memory units. If you choose `t2.micro` as the EC2 instance type which offers 993 memory units, you can fit 2 containers in the instance (993/332 = 2.99 containers). However, if you choose `t2.small` which offers 2001 memory units, the memory resource would be more efficiently used because 2001/332 = 6.02 containers and not using the leftover 0.02 containers would be less wasteful than doing this with the leftover 0.99 containers. In this way, your containers fit more efficiently in the `t2.small` instance than in the `t2.micro` instance. The next question is how we can calculate CPU for your container. The amount for CPU units you can easily calculate using this ratio:
 
 ![ratio](/assets/posts/2018-05-25-ecs-calculator/ratio_cpu_ram.png)
 
