@@ -9,9 +9,8 @@ author:
 
 In the cloud, containers provide a containerised environment enabling your code to be built, shipped and run anywhere. This can be simply done by just running your code without setting up your operating system.
 
-Coming with such benefit, AWS Elastic Container Services (ECS) is a a highly scalable, fast, container management service that makes easy to run your containerised code and applications across a managed cluster of EC2 instances. You will need to optimally scale and fit ECS containers in an EC2 instance for the efficient usage of your resources in the cloud. This means you should ensure that resources such as CPU and Memory units are enough and efficiently reserved for your largest container to scale out.
-
-The table below provides the values of the CPU and Memory reservation for each EC2 instance type as inputs to how to optimally fit ECS containers in an EC2 instance. Furthermore, how this is achieved will be explained in the latter examples.
+Coming with such benefit, AWS Elastic Container Services (ECS) is a a highly scalable, fast, container management service that makes easy to run your containerised code and applications across a managed cluster of EC2 instances. You will need to optimally scale and fit ECS containers in an EC2 instance for the efficient usage of your resources in the cloud. This means you should ensure that resources such as CPU and Memory units are enough for your largest container to scale out and efficiently reserved so that your containers can fill the instances in your deployment.
+The table below provides the values of the CPU and Memory reservation for each EC2 instance type. You can use this information to pick optimal values for the CPU and Memory that will be assigned to your containers. This will be further explained in the examples that follow.
 
 <div markdown="1" class="table-responsive ec2-table">
 
@@ -96,9 +95,9 @@ The table below provides the values of the CPU and Memory reservation for each E
 
 ❗️You can also find this information in yaml format [here](/assets/files/2018-05-25-ecs-calculator/ec2-instance-list.yml) 👈
 
-The solution is to make the optimal choice of the EC2 instance type with its budgeted CPU and Memory units to efficiently fit ECS containers in the instance based on the data from the table. Therefore, it is important to first have some insight into the limits of CPU and Memory reservation.
+If the selected values for the CPU and Memory assigned to the container are not quotients of the CPU and Memory values that the instance provides, you will end up with empty blocks of unused resources. The solution is to make the optimal choice of the EC2 instance type with its budgeted CPU and Memory units to efficiently fit ECS containers in the instance based on the data from the table. Therefore, it is important to first have some insight into the limits of CPU and Memory reservation.
 
-The CPU units can be reserved with soft limit because containers can burst above their provision. One container can burst above its allocated units if no other containers are taking up resources. Besides, containers also share their unallocated CPU units with other containers on the instance with the same ratio as their allocated amount.
+The CPU assignment is a soft limit which means that containers can burst above their provision. One container can burst above its allocated units if no other containers are taking up resources. Besides, containers also share their unallocated CPU units with other containers on the instance with the same ratio as their allocated amount.
 
 It is also useful to understand how your container can effectively use the memory resources.The ECS memory resource model is more complex then the CPU resource model and allows you to configure both memory reservations and memory limits. You can see the whole concept below:
 
