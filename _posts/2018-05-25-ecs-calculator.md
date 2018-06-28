@@ -10,6 +10,7 @@ author:
 In the cloud, containers provide a containerised environment enabling your code to be built, shipped and run anywhere. This can be simply done by just running your code without setting up your operating system.
 
 Coming with such benefit, AWS Elastic Container Services (ECS) is a a highly scalable, fast, container management service that makes easy to run your containerised code and applications across a managed cluster of EC2 instances. You will need to optimally scale and fit ECS containers in an EC2 instance for the efficient usage of your resources in the cloud. This means you should ensure that resources such as CPU and Memory units are enough for your largest container to scale out and efficiently reserved so that your containers can fill the instances in your deployment.
+
 The table below provides the values of the CPU and Memory reservation for each EC2 instance type. You can use this information to pick optimal values for the CPU and Memory that will be assigned to your containers. This will be further explained in the examples that follow.
 
 <div markdown="1" class="table-responsive ec2-table">
@@ -122,7 +123,7 @@ Imagine that your largest container requires 332 memory units. If you choose `t2
 
 > So, (332 Mbs * 1024 CPU units) / 2001 Mbs = 169 CPU units.
 
-In another scenario, your largest container is provided with 900 memory units and you would like to pick an instance that can host 4 containers. You can fit this amount of containers in the `t2.medium` instance which reserves 3952 Memory units (3952/900 = 4.39 containers). Also, the `t2.large` instance which reserves 7984 Memory units makes it possible for 4 containers to fit in as well (7984/900 = 8.87 containers). Then your containers will fit more efficiently in the `t2.medium` instance than in the `t2.large` instance because we need only 4 containers and 8 containers is to much for our purpose. Let's calculate the CPU units then.
+In another scenario, your largest container is provided with 900 memory units and you would like to pick an instance that can host 4 containers. You can fit this amount of containers in the `t2.medium` instance which reserves 3952 Memory units (3952/900 = 4.39 containers). Also, the `t2.large` instance which reserves 7984 Memory units makes it possible for 4 containers to fit in as well (7984/900 = 8.87 containers). Then your containers will fit more efficiently in the `t2.medium` instance than in the `t2.large` instance because we will have much less unused resources. Let's calculate the CPU units then.
 
 > (900 Mbs * 2048 CPU units) / 3952 Mbs =  466 CPU units.
 
