@@ -32,7 +32,7 @@ Starting from top to bottom, here is how we’ve implemented this workflow.
 <img src="../../../assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd3.png" alt="Account Strategy" style="width:550px;"/>
 
 
-1- Looking at deployment workflow again (image1), on step 1, first challenge is to get data for `Source Step`. Everything is very easy if you’re using CodeCommit but most probably it’s not the case. By default, CodeCommit supports  GitHub as a source, but the problem is, if you’re using company/group profiles, when you want to give access to one of the repositories, you need to give access to all group, means the AWS account you’re using has access to all other projects under your company group. Otherwise you’ll need to create a read only account for each customers. This is a problem only if you’re using web interface, with CloudFormation you can use `OAuthToken` at the source configuration step.
+1- Looking at deployment workflow again (image1), on step 1, first challenge is to get data for `Source Step`. Everything is very easy if you’re using CodeCommit but most probably it’s not the case. By default, CodeCommit supports GitHub as a source, but the problem is, if you’re using company/group profiles, when you want to give access to one of the repositories, you need to give access to all group, means the AWS account you’re using has access to all other projects under your company group. Otherwise you’ll need to create a read only account for each customers. This is only a problem if you’re using the web interface, with CloudFormation you can use `OAuthToken` at the source configuration step.
 To solve this problem, we’ve used a cron to clone / pull data and and push to CodeCommit using some scripting;
 
 git clone --mirror git@github.com:[companyname]/[repo].git [folder]
@@ -40,7 +40,7 @@ cd [folder]/
 git remote add sync https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/[repo]
 git push sync --mirror
 
-So, after this workaround step, we use CodePipeline as source for deployment plans.
+So, after this workaround step, we use CodeCommit as source for deployment plans.
 
 This is the `Source Step` of CodePipeline configuration;
 ```
