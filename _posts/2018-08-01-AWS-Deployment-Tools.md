@@ -1,7 +1,7 @@
-minimise---
+---
 layout: post
-title: AWS Deployment Tools (CodePipeline, CodeDeploy, CodeCommit, CodeCommit) and a Use Case
-banner: sassets/posts/2018-08-03-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd.png
+title: AWS Deployment Tools Overview
+banner: /assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd.png
 author: srknc
 ---
 
@@ -13,21 +13,24 @@ CodePipeline is the orchestration / glue tool for your repositories, build and d
 
 CodeCommit is the equivalent of GitHub and Gitlab, authentication works with IAM. Although it has some important features like pull requests etc., most probably it’s handier just to sync it with GitHub or Gitlab.
 
-CodeBuild is originally a building tool with yaml file task definition, but basically it can be used for any purposes as it’s possible to execute shell commands.
+CodeBuild is originally a building tool with YAML file task definition, but basically it can be used for any purposes as it’s possible to execute shell commands.
 
-CodeDeploy is the deployment tool, it supports ECS, CloudFormation and Beanstalk (06.2018). Although it covers most important AWS services, it’s not possible to customise these deployments, just as an easiest example, you cannot make an api call after deployment.
+CodeDeploy is the deployment tool, it supports EC2 and Lambda (06.2018). Although it covers most important AWS services, It's not pretty straight forward to customise it or it doesn't make sense to you CodeDeploy if you're deploying using your own deployment scripts.
 
 
 
 Our deployment workflow is simply something like this;
-![Deployment Model](../../../assets/posts/2018-08-03-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd2.png)
+
+<img src="../../../assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd2.png" alt="Deployment Model" style="width:400px;"/>
+
 
 
 Starting from top to bottom, here is how we’ve implemented this workflow.
 
 0- First step is deciding which account we’ll be using for CI/CD process. According to AWS (https://aws.amazon.com/blogs/devops/aws-building-a-secure-cross-account-continuous-delivery-pipeline/) If you’ve some requirements like, administrative isolation, limited visibility and discoverability of workloads, isolation in order to minimize blast radius, it’s necessary to use multiple accounts and put all CI/CD logic to a different account. Based on this, account strategy we’ve followed shown below;
 
-![Account Strategy](../../../assets/posts/2018-08-03-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd#.png)
+<img src="../../../assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd3.png" alt="Account Strategy" style="width:550px;"/>
+
 
 1- Looking at deployment workflow again (image1), on step 1, first challenge is to get data for `Source Step`. Everything is very easy if you’re using CodeCommit but most probably it’s not the case. By default, CodeCommit supports  GitHub as a source, but the problem is, if you’re using company/group profiles, when you want to give access to one of the repositories, you need to give access to all group, means the AWS account you’re using has access to all other projects under your company group. Otherwise you’ll need to create a read only account for each customers. This is a problem only if you’re using web interface, with CloudFormation you can use `OAuthToken` at the source configuration step.
 To solve this problem, we’ve used a cron to clone / pull data and and push to CodeCommit using some scripting;
@@ -98,7 +101,7 @@ Next step at the workflow is combining these 2 repositories to be able to use it
 To solve this problem, we’re using AWS CodeBuild and upload configuration repository to S3. So at the build step, CodeBuild uses S3 as source for config files and CodeCommit as source for CloudFormation code.
 
 And this is the CodePipeline step for `Config Placement` step;
-```
+```python
             {
                 "name": "Config-Placement",
                 "actions": [
@@ -130,7 +133,7 @@ And this is the CodePipeline step for `Config Placement` step;
 ```
 
 Here is the buildspec.yml file for `Config Placement` CodeBuild step.
-```
+```python
 version: 0.2
 env:
   variables:
@@ -156,7 +159,7 @@ Build Step
 3rd step on the workflow is CloudFormation build phase. Sentia has it’s own in-house CloudFormation generation engine, Halloumi. This step is basically responsible from getting the CloudFormation template engine code (from the output-artifact of Source step) and the configuration code from S3, executing Halloumi build command and pass artifacts (output of build command) to the next step.
 
 Here is the .buildspec_build.yml CodeBuild step configuration file;
-```
+```python
 version: 0.2
 env:
   variables:
@@ -183,7 +186,7 @@ artifacts:
 
 
 And CodePipeline configuration step for this build;
-```
+```python
             {
                 "name": "Build",
                 "actions": [
@@ -224,7 +227,7 @@ Last step at this CodePipeline configuration is the `deploy` step. AWS encourage
 In our case we’ve used CodeBuild to be able to deploy CloudFormation code and execute some extra steps.
 Here is the buildspec_deploy.yml for CodeBuild step.
 version: 0.2
-```
+```python
 env:
   variables:
     ENVIRONMENT: $ENVIRONMENT
@@ -246,7 +249,7 @@ artifacts:
 ```
 
 And this is the CodePipeline `Build` step configuration;
-```
+```python
             {
                 "name": "Deploy",
                 "actions": [
@@ -283,7 +286,7 @@ This was the last step on Deployment process.
 
 Another missing feature with CodePipeline is, not being able to easily change deployment branch for individual deployments. For preproduction and production, our customer deploys from master branch but they would like to deploy any branch to acceptance environment. To be able to achieve this, we’ve used Lambda and API Gateway.
 
-![Trigger and Update CodePipeline using API Gateway](../../../assets/posts/2018-08-03-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd4.png)
+![Trigger and Update CodePipeline using API Gateway](../../../assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd4.png)
 
 This API gateway has 2 methods, one is for changing the deployment branch, it triggers a lambda function which gets current CodePipeline configuration, changes branch definition and update CodePipeline again, using Boto3 library.
 The other /trigger/ method only triggers CodePipeline execution without changing anything.
@@ -292,6 +295,7 @@ Here is the Lambda function code;
 
 lambda_function.py
 (codepipeline-trigger)
+
 ```python
 import boto3
 import json
