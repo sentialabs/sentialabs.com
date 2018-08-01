@@ -9,15 +9,17 @@ In Sentia MPC, we’re trying to use as much AWS services as possible - also for
 
 Before sharing the experience and the use-case, it’s better to explain tools in a nutshell.
 
-CodePipeline is the orchestration / glue tool for your repositories, build and deployment steps. All these steps can use AWS solutions (CodeCommit, CodeBuild or CodeDeploy) but it’s also possible to use GitHub, Jenkins etc. 3rd tools for some steps.
+## Definitions
 
-CodeCommit is the equivalent of GitHub and Gitlab, authentication works with IAM. Although it has some important features like pull requests etc., most probably it’s handier just to sync it with GitHub or Gitlab.
+**CodePipeline** is the orchestration / glue tool for your repositories, build and deployment steps. All these steps can use AWS solutions (CodeCommit, CodeBuild or CodeDeploy) but it’s also possible to use GitHub, Jenkins etc. 3rd tools for some steps.
 
-CodeBuild is originally a building tool with YAML file task definition, but basically it can be used for any purposes as it’s possible to execute shell commands.
+**CodeCommit** is the equivalent of GitHub and Gitlab, authentication works with IAM. Although it has some important features like pull requests etc., most probably it’s handier just to sync it with GitHub or Gitlab.
 
-CodeDeploy is the deployment tool, it supports EC2 and Lambda (06.2018). Although it covers most important AWS services, It's not pretty straight forward to customise it or it doesn't make sense to you CodeDeploy if you're deploying using your own deployment scripts.
+**CodeBuild** is originally a building tool with YAML file task definition, but basically it can be used for any purposes as it’s possible to execute shell commands.
 
+**CodeDeploy** is the deployment tool, it supports EC2 and Lambda (06.2018). Although it covers most important AWS services, It's not pretty straight forward to customise it or it doesn't make sense to you CodeDeploy if you're deploying using your own deployment scripts.
 
+## Implementations
 
 Our deployment workflow is simply something like this;
 
@@ -284,6 +286,8 @@ Deploy step consists of 3 main steps, install phase to install required packages
 
 This was the last step on Deployment process.
 
+## Changing Deployment Branch
+
 Another missing feature with CodePipeline is, not being able to easily change deployment branch for individual deployments. For preproduction and production, our customer deploys from master branch but they would like to deploy any branch to acceptance environment. To be able to achieve this, we’ve used Lambda and API Gateway.
 
 <img src="../../../assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd4.png" alt="Trigger and Update CodePipeline using API Gateway" style="width:800px;"/>
@@ -449,13 +453,15 @@ def lambda_handler(event, context):
 ````    
 
 
-
+## Final Words
 
 
 Advantages:   
 * It's nice to be able to have workflow elements under one provider, AWS.
-* There is no installation, maintenance on all these services, just works !
+* There is no installation, servers, maintenance on all these services, it just works!
 * It's cheap, price wise, really cheap comparing with having a CI/CD server and maintaining it.
 
 Disadvantages:   
 * It’s not possible to deploy a specific branch from web interface
+* CodeDeploy support is very limited
+*
