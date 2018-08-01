@@ -286,7 +286,8 @@ This was the last step on Deployment process.
 
 Another missing feature with CodePipeline is, not being able to easily change deployment branch for individual deployments. For preproduction and production, our customer deploys from master branch but they would like to deploy any branch to acceptance environment. To be able to achieve this, we’ve used Lambda and API Gateway.
 
-![Trigger and Update CodePipeline using API Gateway](../../../assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd4.png)
+<img src="../../../assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd4.png" alt="Trigger and Update CodePipeline using API Gateway" style="width:800px;"/>
+
 
 This API gateway has 2 methods, one is for changing the deployment branch, it triggers a lambda function which gets current CodePipeline configuration, changes branch definition and update CodePipeline again, using Boto3 library.
 The other /trigger/ method only triggers CodePipeline execution without changing anything.
