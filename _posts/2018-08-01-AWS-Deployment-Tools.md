@@ -45,7 +45,7 @@ git push sync --mirror
 So, after this workaround step, we use CodeCommit as source for deployment plans.
 
 This is the `Source Step` of CodePipeline configuration;
-```
+```python
         "stages": [
             {
                 "name": "Source",
@@ -156,7 +156,7 @@ So, whenever a change has been made at one of the repositories, this step upload
 
 Important to mention here, although it’s mandatory to use output-artifact to be able to put extra steps at CodePipeline, we’re not using those output artifacts as input for next step, we’ll be downloading the code from S3 at the build step.
 
-Build Step
+## Build Step
 
 3rd step on the workflow is CloudFormation build phase. Sentia has it’s own in-house CloudFormation generation engine, Halloumi. This step is basically responsible from getting the CloudFormation template engine code (from the output-artifact of Source step) and the configuration code from S3, executing Halloumi build command and pass artifacts (output of build command) to the next step.
 
@@ -224,7 +224,7 @@ Something the mention here, we’re keeping CodeBuild configuration files (build
 On this step (at CodePipeline configuration) we mention output artifact as `build-output-artifact` and we’ll be using these files at the next step (CodeBuild - Deploy) as input artifact.
 
 
-Deploy Step
+## Deploy Step
 Last step at this CodePipeline configuration is the `deploy` step. AWS encourages customers to use CodeDeploy for this step. As we’ve explained before, CodeDeploy has limited features. For example if you need to execute a script after deployment, trigger an external system etc, it’s not possible. But it’s perfect if you’re deployment is only a CloudFormation deployment or a simple application.
 In our case we’ve used CodeBuild to be able to deploy CloudFormation code and execute some extra steps.
 Here is the buildspec_deploy.yml for CodeBuild step.
