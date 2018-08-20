@@ -1,7 +1,7 @@
 ---
 layout: post
 title: AWS Deployment Tools Overview
-banner: /assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd.png
+banner: /assets/posts/2018-08-20-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd.png
 author: srknc
 ---
 
@@ -23,7 +23,7 @@ Before sharing the experience and the use-case, it’s better to explain tools i
 
 Our deployment workflow is simply something like this;
 
-<img src="../../../assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd2.png" alt="Deployment Model" style="width:400px;"/>
+<img src="../../../assets/posts/2018-08-20-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd2.png" alt="Deployment Model" style="width:400px;"/>
 
 
 
@@ -31,7 +31,7 @@ Starting from top to bottom, here is how we’ve implemented this workflow.
 
 0- First step is deciding which account we’ll be using for CI/CD process. According to AWS (https://aws.amazon.com/blogs/devops/aws-building-a-secure-cross-account-continuous-delivery-pipeline/) If you’ve some requirements like, administrative isolation, limited visibility and discoverability of workloads, isolation in order to minimize blast radius, it’s necessary to use multiple accounts and put all CI/CD logic to a different account. Based on this, account strategy we’ve followed shown below;
 
-<img src="../../../assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd3.png" alt="Account Strategy" style="width:550px;"/>
+<img src="../../../assets/posts/2018-08-20-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd3.png" alt="Account Strategy" style="width:550px;"/>
 
 
 1- Looking at deployment workflow again (image1), on step 1, first challenge is to get data for `Source Step`. Everything is very easy if you’re using CodeCommit but most probably it’s not the case. By default, CodeCommit supports GitHub as a source, but the problem is, if you’re using company/group profiles, when you want to give access to one of the repositories, you need to give access to all group, means the AWS account you’re using has access to all other projects under your company group. Otherwise you’ll need to create a read only account for each customers. This is only a problem if you’re using the web interface, with CloudFormation you can use `OAuthToken` at the source configuration step.
@@ -290,7 +290,7 @@ This was the last step on Deployment process.
 
 Another missing feature with CodePipeline is, not being able to easily change deployment branch for individual deployments. For preproduction and production, our customer deploys from master branch but they would like to deploy any branch to acceptance environment. To be able to achieve this, we’ve used Lambda and API Gateway.
 
-<img src="../../../assets/posts/2018-08-01-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd4.png" alt="Trigger and Update CodePipeline using API Gateway" style="width:800px;"/>
+<img src="../../../assets/posts/2018-08-20-AWS-Deployment-Tools/3220b008-93a3-4c7a-a96a-d3ce15d0afcd4.png" alt="Trigger and Update CodePipeline using API Gateway" style="width:800px;"/>
 
 
 This API gateway has 2 methods, one is for changing the deployment branch, it triggers a lambda function which gets current CodePipeline configuration, changes branch definition and update CodePipeline again, using Boto3 library.
