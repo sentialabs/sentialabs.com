@@ -95,7 +95,7 @@ When the deployment is done, check out the Lambda and API Gateway sections in th
 ![Invoke URL](/assets/posts/2018-08-16-Building-a-Slackbot-with-Serverless-Framework/api-stage.png)
 
 # Reading Lambda logs
-The Lambda function deployed to your AWS environment will output logs to CloudWatch. You can see follow the function's output in the AWS CloudWatch web console. However, the Serverless Framework also allows you to follow (or tail) the output in your terminal. To do this, open a new terminal screen and execute `sls logs --function event_receive -t`. There will be no output yet, but we will see something appear in the next step.
+The Lambda function deployed to your AWS environment will output logs to CloudWatch. You can follow the function's output in the AWS CloudWatch web console. However, the Serverless Framework also allows you to follow (or tail) the output in your terminal. To do this, open a new terminal screen and execute `sls logs --function event_receive -t`. There will be no output yet, but we will see something appear in the next step.
 
 # Registering a Slack Bot
 Go to [https://api.slack.com/apps](https://api.slack.com/apps) and register a new application. Then click **Event Subscriptions** in the left menu and toggle the **Enable Events** button.
@@ -212,7 +212,7 @@ resources:
         TableName: ${self:provider.environment.KARMA_TABLE}
 ```
 
-Do a `sls deploy`, and you'll find a new DynamoDB table in your AWS environment. It's that easy! Next up: allowing our Lambda to read and write to the table. Update `serverless.yml` by adding the `iamRoleStatements` section, so the file looks like this:
+Do an `sls deploy`, and you'll find a new DynamoDB table in your AWS environment. It's that easy! Next up: allowing our Lambda to read and write to the table. Update `serverless.yml` by adding the `iamRoleStatements` section, so the file looks like this:
 ```yaml
 service: karmabot-tutorial
 
@@ -266,7 +266,7 @@ resources:
         TableName: ${self:provider.environment.KARMA_TABLE}
 ```
 
-With this update, the Lambda function has all permission it needs. Now we will update the Lambda so it will actually read and write to the NoSQL database. Paste the following content to `event.py`:
+With this update, the Lambda function has all the permissions it needs. Now we will update the Lambda so it will actually read and write to the NoSQL database. Paste the following content to `event.py`:
 
 ```python
 import json
@@ -412,7 +412,7 @@ def send_message(data, text):
     pass
 ```
 
-Don't worry if the code looks a bit complex, it's just an example of what you could do with a Slack Bot. In this case, the incoming message is processed in the `handle_message` function. In it, the message is scanned for `++`, `--` or `==`. The other functions provide the interaction with DynamoDB.
+Don't worry if the code looks a bit complex, it's just an example of what you could do with a Slack Bot. In this case, the incoming message is processed in the `handle_message` function. In it, the message is scanned for `++`, `--` or `==`. The other functions provide interaction with DynamoDB.
 
 The only missing part is sending messages back to Slack. We will implement this in the next section.
 
@@ -651,11 +651,11 @@ This would mean a million messages per 4 weeks, and 20.000 of those are karma in
 
 The second cost would be **Lambda** executions. Just like API Gateway, each message would mean 1 Lambda execution. Also like API Gateway, the first 1.000.000 Lambda executions per month are free. Unlike API Gateway however _this does not end after the first year_. So in our example, no cost for Lambda executions would be involved.
 
-With Lambda you also pay for execution duration. This is calculated as GB-Seconds, or (reserved maximum memory the function can use * average execution time rounded up to nearest 100ms * number of executions). In our case, that's `128 MB * 100 ms * 1.000.000`, or `0,125 GB * 0.1 s * 1.000.000` = 12.500 GB-Seconds. The free tier offers 400,000 GB-Seconds per month for free, so this would also not invoke cost. This pricing available indefinitely, so our function would remain free after the first year.
+With Lambda you also pay for execution duration. This is calculated as GB-Seconds, or (reserved maximum memory the function can use * average execution time rounded up to nearest 100ms * number of executions). In our case, that's `128 MB * 100 ms * 1.000.000`, or `0,125 GB * 0.1 s * 1.000.000` = 12.500 GB-Seconds. The free tier offers 400,000 GB-Seconds per month for free, so this would also not invoke cost. This pricing is also available indefinitely, so our function would remain free after the first year.
 
 The next cost segment is **DynamoDB**. DynamoDB pricing is split into three sections: storage in GBs, Read Capacity Units and Write Capacity Units. 
 
-The records we store are 50 bytes each. Let's assume the worst and say that each of the 20.000 karma interactions create a new record. This would mean the database would be 20.000 * 50 bytes * 12 = 11.44 MB in size after *one year*. The first 25 GB are free, also indefinitely, so there is no cost involved for storage.
+The records we store are 50 bytes each. Let's assume the worst and say that each of the 20.000 karma interactions creates a new record. This would mean the database would be 20.000 * 50 bytes * 12 = 11.44 MB in size after *one year*. The first 25 GB are free, also indefinitely, so there is no cost involved for storage.
 
 Each of the 20.000 interactions reads the DynamoDB table once. DynamoDB's free tier offers 129.600.000 reads of items up to 4 KB using eventually consistent reads (which we use). So that's free as well.
 
@@ -666,8 +666,8 @@ The final service we use is **CloudWatch**. It offers 5 GB of incoming logs per 
 In conclusion, our service would be free in the first year, even under moderately heavy use. Past the first year, cost would be $3.50 per month.
 
 # Conclusion
-With this post, I hope I have displayed that with AWS serverless technology and the Serverless Framework, it's extremely easy and cheap to set up something cool like a Slack Bot. 50 lines of YAML, 160 lines of Python and about 2 hours of pointing and clicking is enough to get you there.
+With this post I hope I have displayed that with AWS serverless technology and the Serverless Framework, it's extremely easy and cheap to set up something cool like a Slack Bot. 50 lines of YAML, 160 lines of Python and about 2 hours of pointing and clicking is enough to get you there.
 
 Of course, the Karma Bot we've built is not complete. I leave it to your imagination to extend it with whatever cool features you can think of. 
 
-In an upcoming post I will also demonstrate how to uses AWS SQS and the SQS Lambda trigger to make the bot work asynchronously, and in another post I will show you how to use CodePipeline and CodeBuild to automatically deploy any changes made to your bot's Git master branch.
+In an upcoming post I will also demonstrate how to use AWS SQS and the SQS Lambda trigger to make the bot work asynchronously, and in another post I will show you how to use CodePipeline and CodeBuild to automatically deploy any changes made to your bot's Git master branch.
