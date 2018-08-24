@@ -14,15 +14,15 @@ Scaling your instances in ECS optimally is not an easy or straightforward task. 
 
 So how can you solve this problem?
 
-Correlate all the data.
------------------------
+Correlate all the data
+----------------------
 
 At Sentialabs we have a great [post](http://www.sentialabs.io/2018/05/25/ecs-calculator.html) about how you can use CPU and Memory values for your services/containers proportional to the available values depending on the instance class you are using for your ECS cluster. When you do so, you automatically create a correlation for the 2 metrics. Subsequently, you can just use one of the 2 metrics to scale your container instances. The previous depends on depends on the workload your containers are running, it is a bit restrictive and requires effort and recalculation for the values when you want to change the class of your instances in the cluster.
 
 But what if you can't follow the previous guidelines especially because your container profiling has shown that they require very extravagant custom values?
 
-Create a custom metric.
------------------------
+Create a custom metric
+----------------------
 
 There are various approaches described in a variety of blog posts on how you can implement a custom scaling metric for container instance scaling on ECS. At Sentia, we reviewed and benchmarked many of these solutions for their dynamics and efficiency. We ended up creating a custom scaling metric of our own.
 
@@ -31,8 +31,8 @@ What is the difference?
 A typical scaling metric outputs values in CloudWatch, and then you can use thresholds in the alarms to trigger actions. The problem is that ECS is a very dynamic service which means that the thresholds may need to be recalculated when services come and go. Our solution is to let the calculations be performed by the script that does all the correlation for the data. And the medium for this is of course Lambda.
 
 
-Put everything together in Lambda.
-----------------------------------
+Put everything together in Lambda
+---------------------------------
 
 ```python
 __copyright__ = """
@@ -207,3 +207,96 @@ A scale out would happen when:
     index.
 
 In order for the cluster to scale in, the previous scale out rules should not be violated after a complete instance is removed from the cluster. This is ensured by checking that there are sufficient chunks of free space even after the reorganization in ECS after a scale in activity.
+
+How does it look like in practice?
+----------------------------------
+
+With the above solution you no longer need to be careful about the cpu and memory units you assign to your services. You can profile your container and deploy them in the stack without having to worry about the stability of the scaling algorithm or the thresholds that you have set in the code.
+
+On top of this you get a scalability index which directly translates to a prioritization of cost or performance priority scaling activity. With a smaller scalability index you have less space for containers to scale out faster, but also less unused space within your instances. When you increase the scalability index, you have more space for containers to scale out faster, deployments that need to replace a lot of containers to finish faster but of course you are less cost effective.
+
+In the following captions you can find some screenshots of how the algorithm operates in practice. Although the actual data for triggering the scaling activities is missing, it serves as an example of how the above code snippet will work for your account.
+
+![Scaling Metric Example](/assets/posts/2018-05-16-Custom-ECS-Container-Instance-Scaling-Metric/requires_scaling_metric.png)
+![Scaling Activities 1](/assets/posts/2018-05-16-Custom-ECS-Container-Instance-Scaling-Metric/scaling_1.png)
+![Scaling Activities 2](/assets/posts/2018-05-16-Custom-ECS-Container-Instance-Scaling-Metric/scaling_2.png)
+
+As a reference, please find below the CloudFormation code that shows an example of how the CloudWatch alarms can be set up around the RequiresScaling metric.
+
+```json
+"EcsClusterScaleInAlarm": {
+  "Properties": {
+    "ActionsEnabled": true,
+    "AlarmActions": [{
+      "Ref": "EcsClusterScaleInPolicy"
+    }],
+    "ComparisonOperator": "LessThanOrEqualToThreshold",
+    "Dimensions": [{
+      "Name": "ClusterName",
+      "Value": {
+        "Ref": "EcsClusterCluster"
+      }
+    }],
+    "EvaluationPeriods": 5,
+    "MetricName": "RequiresScaling",
+    "Namespace": "AWS/ECS",
+    "Period": 60,
+    "Statistic": "Maximum",
+    "Threshold": -1,
+    "TreatMissingData": "notBreaching",
+    "Unit": "None"
+  },
+  "Type": "AWS::CloudWatch::Alarm"
+},
+"EcsClusterScaleInPolicy": {
+  "Properties": {
+    "AdjustmentType": "ChangeInCapacity",
+    "AutoScalingGroupName": {
+      "Ref": "EcsClusterInstanceAutoScalingGroup"
+    },
+    "Cooldown": 300,
+    "ScalingAdjustment": -1
+  },
+  "Type": "AWS::AutoScaling::ScalingPolicy"
+},
+"EcsClusterScaleOutAlarm": {
+  "Properties": {
+    "ActionsEnabled": true,
+    "AlarmActions": [{
+      "Ref": "EcsClusterScaleOutPolicy"
+    }],
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "Dimensions": [{
+      "Name": "ClusterName",
+      "Value": {
+        "Ref": "EcsClusterCluster"
+      }
+    }],
+    "EvaluationPeriods": 1,
+    "MetricName": "RequiresScaling",
+    "Namespace": "AWS/ECS",
+    "Period": 60,
+    "Statistic": "Maximum",
+    "Threshold": 1,
+    "TreatMissingData": "notBreaching",
+    "Unit": "None"
+  },
+  "Type": "AWS::CloudWatch::Alarm"
+},
+"EcsClusterScaleOutPolicy": {
+  "Properties": {
+    "AdjustmentType": "ChangeInCapacity",
+    "AutoScalingGroupName": {
+      "Ref": "EcsClusterInstanceAutoScalingGroup"
+    },
+    "Cooldown": 120,
+    "ScalingAdjustment": 1
+  },
+  "Type": "AWS::AutoScaling::ScalingPolicy"
+}
+```
+
+Conclusion
+----------
+
+Container instances scaling for ECS can be a challenging topic. By harvesting the power of Lambda and outsourcing the decision for optimal scheduling to a script, you end up with a process resilient to human error. You are also protecting your infrastructure against changes in the number of services and containers within your cluster.
