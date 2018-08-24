@@ -10,7 +10,7 @@ When managing your own cluster in ECS, there are 2 metrics you can use to scale 
 
 Scaling your instances in ECS optimally is not an easy or straightforward task. At least not when you are trying to do so using only the previous metrics that are available to you through CloudWatch. The problem originates from the fact that you have 2 metrics to consider.
 
-**It is impossible to scale using 2 metics if they are uncorrelated to each other.**
+**It is impossible to scale using 2 metrics if they are uncorrelated to each other.**
 
 So how can you solve this problem?
 
