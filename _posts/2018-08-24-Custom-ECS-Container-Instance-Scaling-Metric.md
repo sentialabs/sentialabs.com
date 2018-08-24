@@ -1,7 +1,7 @@
 ---
 layout: post
 title: ECS container instance scaling the proper way
-banner: /assets/posts/2018-05-16-Custom-ECS-Container-Instance-Scaling-Metric/ecs.png
+banner: /assets/posts/2018-08-24-Custom-ECS-Container-Instance-Scaling-Metric/ecs.png
 author:
   - kbessas
 ---
@@ -17,7 +17,7 @@ So how can you solve this problem?
 Correlate all the data
 ----------------------
 
-At Sentialabs we have a great [post](http://www.sentialabs.io/2018/05/25/ecs-calculator.html) about how you can use CPU and Memory values for your services/containers proportional to the available values depending on the instance class you are using for your ECS cluster. When you do so, you automatically create a correlation for the 2 metrics. Subsequently, you can just use one of the 2 metrics to scale your container instances. The previous depends on depends on the workload your containers are running, it is a bit restrictive and requires effort and recalculation for the values when you want to change the class of your instances in the cluster.
+At Sentialabs we have a great [post](http://www.sentialabs.io/2018/08/24/ecs-calculator.html) about how you can use CPU and Memory values for your services/containers proportional to the available values depending on the instance class you are using for your ECS cluster. When you do so, you automatically create a correlation for the 2 metrics. Subsequently, you can just use one of the 2 metrics to scale your container instances. The previous depends on depends on the workload your containers are running, it is a bit restrictive and requires effort and recalculation for the values when you want to change the class of your instances in the cluster.
 
 But what if you can't follow the previous guidelines especially because your container profiling has shown that they require very extravagant custom values?
 
@@ -217,9 +217,9 @@ On top of this you get a scalability index which directly translates to a priori
 
 In the following captions you can find some screenshots of how the algorithm operates in practice. Although the actual data for triggering the scaling activities is missing, it serves as an example of how the above code snippet will work for your account.
 
-![Scaling Metric Example](/assets/posts/2018-05-16-Custom-ECS-Container-Instance-Scaling-Metric/requires_scaling_metric.png)
-![Scaling Activities 1](/assets/posts/2018-05-16-Custom-ECS-Container-Instance-Scaling-Metric/scaling_1.png)
-![Scaling Activities 2](/assets/posts/2018-05-16-Custom-ECS-Container-Instance-Scaling-Metric/scaling_2.png)
+![Scaling Metric Example](/assets/posts/2018-08-24-Custom-ECS-Container-Instance-Scaling-Metric/requires_scaling_metric.png)
+![Scaling Activities 1](/assets/posts/2018-08-24-Custom-ECS-Container-Instance-Scaling-Metric/scaling_1.png)
+![Scaling Activities 2](/assets/posts/2018-08-24-Custom-ECS-Container-Instance-Scaling-Metric/scaling_2.png)
 
 As a reference, please find below the CloudFormation code that shows an example of how the CloudWatch alarms can be set up around the RequiresScaling metric.
 
