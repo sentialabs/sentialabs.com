@@ -211,7 +211,7 @@ In order for the cluster to scale in, the previous scale out rules should not be
 How does it look like in practice?
 ----------------------------------
 
-With the above solution you no longer need to be careful about the cpu and memory units you assign to your services. You can profile your container and deploy them in the stack without having to worry about the stability of the scaling algorithm or the thresholds that you have set in the code.
+The above solution is monitoring the cluster at regular intervals and outputs the metrics created to CloudWatch. You no longer need to be careful about the cpu and memory units you assign to your services. You can profile your container and deploy them in the stack without having to worry about the stability of the scaling algorithm or the thresholds that you have set in the code.
 
 On top of this you get a scalability index which directly translates to a prioritization of cost or performance priority scaling activity. With a smaller scalability index you have less space for containers to scale out faster, but also less unused space within your instances. When you increase the scalability index, you have more space for containers to scale out faster, deployments that need to replace a lot of containers to finish faster but of course you are less cost effective.
 
