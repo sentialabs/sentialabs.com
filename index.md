@@ -12,6 +12,6 @@ form of publications and open-source projects.
 </div>
 
 <div markdown="1" class="col-md-offset-0 col-md-4 col-sm-offset-0 col-sm-4 col-xs-offset-2 col-xs-8">
-![epic](http://i.giphy.com/b09xElu8in7Lq.gif){:.image-max}
+![epic](//i.giphy.com/b09xElu8in7Lq.gif){:.image-max}
 </div>
 </div>
