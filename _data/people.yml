@@ -32,3 +32,15 @@
   gravatar: a40066a305c3aaf6ab24d5cb10a60f63
   description: |
     Junior Cloud System Engineer
+- id: srknc
+  name: Serkan Capkan
+  email: serkan.capkan@sentia.com
+  gravatar: f0babbf9a8bb3a16bffbe22a52028456
+  description: |
+    Sr. Cloud Systems Engineer
+- id: kbessas
+  name: Konstantinos Bessas
+  email: konstantinos.bessas@sentia.com
+  gravatar: 165e39a4daf9546cb3db7a234d691835
+  description: |
+    Cloud Systems Engineer
