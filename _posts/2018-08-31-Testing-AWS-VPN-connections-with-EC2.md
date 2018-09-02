@@ -156,7 +156,7 @@ The last common mistake is a security group that does not allow inbound access f
 ![Add Security Group Rule](/assets/posts/2018-08-31-Testing-AWS-VPN-connections-with-EC2/add-sg-rule.png)
 
 # A final note
-The above example might seem silly to you. Why would you setup a VPN connection to check if you're able to connect to resources in the VPC? It might be a lot easier to just spin up an instance in the Bastion and check from there. Also, verifying that things work from your new VPN will not always help in determining the cause of issues you have with the other VPN.
+The scenario above might seem silly to you. Why would you setup a VPN connection to check if you're able to connect to resources in the VPC? It might be a lot easier to just spin up an instance in a public subnet and check from there. Also, verifying that things work from your new VPN will not always help in determining the cause of issues you have with the other VPN.
 
 There are a few good reasons to still setup your own VPN though:
 1. If things work from your new VPN, you can at least guarantee that what you are trying to achieve is generally possible.
