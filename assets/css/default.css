@@ -161,3 +161,15 @@ img + em {
 #post .ec2-table table th:first-child {
   background-color: #FFA07A;
 }
+
+.thumbnail-frame {
+  width: 100%;
+  padding-bottom: 100%;
+
+  cursor: pointer;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-bottom: 1px solid rgb(221, 221, 221)
+}
+
