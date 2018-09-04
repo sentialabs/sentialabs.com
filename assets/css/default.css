@@ -161,3 +161,8 @@ img + em {
 #post .ec2-table table th:first-child {
   background-color: #FFA07A;
 }
+
+.thumbnail a>img {
+  height: 250px;
+  border-bottom: 1px solid rgb(221, 221, 221);
+}
