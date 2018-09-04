@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Data Continuity Service for DynamoDB
-banner: /assets/posts/2018-06-13-Serverless-Basic-Authentication-Custom-Authorizer/banner.png
+banner: /assets/posts/2018-09-05-Data-Continuity-Service-for-DynamoDB/solution-overview.png)
 author: tvb
 ---
 
