@@ -162,7 +162,14 @@ img + em {
   background-color: #FFA07A;
 }
 
-.thumbnail a>img {
-  height: 250px;
-  border-bottom: 1px solid rgb(221, 221, 221);
+.thumbnail-frame {
+  width: 100%;
+  padding-bottom: 100%;
+
+  cursor: pointer;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-bottom: 1px solid rgb(221, 221, 221)
 }
+

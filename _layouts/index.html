@@ -24,7 +24,12 @@
       <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
         <div class="thumbnail">
           {% if post.banner %}
-          <a href="{{ site.baseurl }}{{ post.url }}"><img src="{{post.banner}}" /></a>
+          <div
+            class="thumbnail-frame"
+            style="background-image: url('{{post.banner}}');"
+            onclick="location.href='{{ site.baseurl }}{{ post.url }}'"
+          ></div>
+            
           {% endif %}
           <div class="caption">
         <h2><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
