@@ -25,13 +25,13 @@
   email: veranika.isakova@sentia.com
   gravatar: d065174ad6d9cbb2b4216bdcaa741668
   description: |
-    Junior Cloud System Engineer
+    Junior Cloud Systems Engineer
 - id: hadoan
   name: Ha Doan
   email: ha.doan@sentia.com
   gravatar: a40066a305c3aaf6ab24d5cb10a60f63
   description: |
-    Junior Cloud System Engineer
+    Junior Cloud Systems Engineer
 - id: srknc
   name: Serkan Capkan
   email: serkan.capkan@sentia.com
@@ -44,3 +44,9 @@
   gravatar: 165e39a4daf9546cb3db7a234d691835
   description: |
     Cloud Systems Engineer
+- id: tvb
+  name: Tristan van Bokkem
+  email: tristan.van.bokkem@sentia.com
+  gravatar: 665bd40c7ca742e9b1f7f41365c2d48a
+  description: |
+    Sr. Cloud Systems Engineer
