@@ -5,7 +5,7 @@ section: Projects
 navigation_weight: 2
 ---
 
-**Why Data Continuity Service for AWS?**
+**Introducing Data Continuity Service for AWS**
 
 Finding yourself landed on this page you might ask yourself why you would need a Data Continuity Service (DCS) for AWS in the first place because you are already creating daily backups for your databases or storage volumes.
 
