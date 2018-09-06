@@ -6,7 +6,9 @@ author: tvb
 belongs_to: dcs.md
 ---
 
-This is the first post of three where we are going to show how to build and configure a Data Continuity Service (DCS) for Amazon DynamoDB by using Amazon DynamoDB Streams, AWS Lambda, and the Amazon S3 services.
+This is the first post of three where we are going to showcase how to build and configure a Data Continuity Service (DCS) for Amazon DynamoDB by using Amazon DynamoDB Streams, AWS Lambda, and the Amazon S3 services.
+
+The reason why we developed this solution is because we felt the build-in solution for [backing up and restoring](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/BackupRestore.html) data in DynamoDB is not sufficient in all scenarios like when you are experiencing a region outage or even an account hack. At the same time the [DynamoDB Global Tables](https://aws.amazon.com/dynamodb/global-tables/) will not help you with an account hack either as it is not possible to replicate your tables to another account with Global Tables.
 
 Overview
 --------
@@ -32,7 +34,7 @@ Make sure you have read the pricing pages for each service used so you are aware
 
 DynamoDB
 -----------
-For this post we are going to have a DynamoDB table called `users` which holds our company customers first name, last name, email address, and an important field. Just for the sake of example.
+For this post we are going to have a DynamoDB table called `users` which holds our company's customers first name, last name, email address, and an important field. Just for the sake of example.
 
 It might look like the following:
 
