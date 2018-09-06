@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Data Continuity Service for DynamoDB
-banner: /assets/posts/2018-09-05-Data-Continuity-Service-for-DynamoDB/banner.png)
+banner: /assets/posts/2018-09-05-Data-Continuity-Service-for-DynamoDB/banner.png
 author: tvb
 belongs_to: dcs.md
 ---
