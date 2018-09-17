@@ -153,4 +153,4 @@ But if either of these mechanisms are in place, we would expect the Edge Optimiz
 **Point 4**: Amazon's [documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-basic-concept.html) indicates that for in-region communication, using a Regional API Gateway "bypasses the unnecessary round trip to a CloudFront distribution". Because of this, we expected to see significant improvements here, but our tests did not show them. However, accessing a Regional API Gateway from within the same Region did yield the lowest reponse time of all our tests at 8ms.
 
 # Final word
-We hope that you enjoyed this post, and that the difference in performance and use cases between the three types of API Gateway have become more clear. If you have any questions or remarks, please reach out to us through our [Slack channel](http://www.sentialabs.io/contact.html).
+We hope that you enjoyed this post, and that the difference in performance and use cases between the three types of API Gateway have become more clear. If you have any questions or remarks, please reach out to the author on [Twitter](https://twitter.com/donkersgood).
