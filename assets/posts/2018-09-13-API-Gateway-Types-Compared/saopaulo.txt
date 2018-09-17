@@ -1,0 +1,115 @@
+##### Sao Paulo #####
+
+##########################
+##### Edge Optimized #####
+##########################
+
+ab -n8000 -c100 https://n5o21v5htb.execute-api.eu-central-1.amazonaws.com/test
+
+Document Path:          /test
+Document Length:        12 bytes
+
+Concurrency Level:      100
+Time taken for tests:   21.022 seconds
+Complete requests:      8000
+Failed requests:        0
+Total transferred:      3160000 bytes
+HTML transferred:       96000 bytes
+Requests per second:    380.56 [#/sec] (mean)
+Time per request:       262.772 [ms] (mean)
+Time per request:       2.628 [ms] (mean, across all concurrent requests)
+Transfer rate:          146.80 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        6    9   5.6      8      58
+Processing:   230  243  67.7    233     716
+Waiting:      230  243  67.6    232     715
+Total:        236  252  71.5    241     766
+
+Percentage of the requests served within a certain time (ms)
+  50%    241
+  66%    242
+  75%    243
+  80%    244
+  90%    245
+  95%    248
+  98%    693
+  99%    738
+ 100%    766 (longest request)
+
+##########################
+#####    Regional    #####
+##########################
+
+ab -n8000 -c100 https://7pz71ymk8k.execute-api.eu-central-1.amazonaws.com/test
+
+Document Path:          /test
+Document Length:        12 bytes
+
+Concurrency Level:      100
+Time taken for tests:   73.812 seconds
+Complete requests:      8000
+Failed requests:        0
+Total transferred:      1776000 bytes
+HTML transferred:       96000 bytes
+Requests per second:    108.38 [#/sec] (mean)
+Time per request:       922.654 [ms] (mean)
+Time per request:       9.227 [ms] (mean, across all concurrent requests)
+Transfer rate:          23.50 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:      674  680   5.4    680     748
+Processing:   226  229   4.1    229     441
+Waiting:      226  229   4.1    229     441
+Total:        901  910   7.2    909    1120
+
+Percentage of the requests served within a certain time (ms)
+  50%    909
+  66%    910
+  75%    913
+  80%    914
+  90%    915
+  95%    916
+  98%    918
+  99%    932
+ 100%   1120 (longest request)
+
+##########################
+#####    Private     #####
+##########################
+
+ab -n8000 -c100 -H 'Cache-Control: no-cache' -H 'Host: oxppfikjm4.execute-api.eu-central-1.amazonaws.com' https://vpce-07a90067589c77a37-pr6cs08e.execute-api.eu-central-1.vpce.amazonaws.com/test
+
+Document Path:          /test
+Document Length:        12 bytes
+
+Concurrency Level:      100
+Time taken for tests:   74.420 seconds
+Complete requests:      8000
+Failed requests:        0
+Total transferred:      1904000 bytes
+HTML transferred:       96000 bytes
+Requests per second:    107.50 [#/sec] (mean)
+Time per request:       930.244 [ms] (mean)
+Time per request:       9.302 [ms] (mean, across all concurrent requests)
+Transfer rate:          24.99 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:      671  680   5.2    680     904
+Processing:   231  236  12.1    235    1236
+Waiting:      231  236  12.1    235    1236
+Total:        903  916  13.6    915    1918
+
+Percentage of the requests served within a certain time (ms)
+  50%    915
+  66%    917
+  75%    919
+  80%    920
+  90%    922
+  95%    924
+  98%    926
+  99%    931
+ 100%   1918 (longest request)
