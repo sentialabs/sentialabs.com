@@ -1,6 +1,6 @@
 ---
 layout: post
-title: AWS API Gateway types, use cases and performance
+title: Amazon API Gateway types, use cases and performance
 banner: /assets/posts/2018-09-13-API-Gateway-Types-Compared/banner.png
 author: lvandonkersgoed
 
@@ -16,6 +16,9 @@ API Gateway does what its name implies: it's an API that functions as a gateway 
 * Throttling; in general or for specific users
 * Authentication; through Cognito or your own identication provider
 
+Amazon's official description for API Gateway is:
+> Amazon API Gateway is a fully managed service that makes it easy for developers to create, publish, maintain, monitor, and secure APIs at any scale. Amazon API Gateway handles all the tasks involved in accepting and processing up to hundreds of thousands of concurrent API calls, including traffic management, authorization and access control, monitoring, and API version management.
+
 # General architecture
 AWS API Gateway resides in an AWS-managed environment. As one of the Serverless services, Amazon manages its hosting, redundancy, scaling, patching, and so on. This means that the underlying technology is completely invisible - all you get is a management interface (Web console, AWS API or AWS CLI). However you choose to configure your API, it will be hosted by AWS. If you want to learn more about Serverless, check out my blog post on [Building a Slack Bot with Serverless Framework](/2018/08/16/Building-a-Slackbot-with-Serverless-Framework.html).
 
@@ -23,12 +26,12 @@ Because a picture speaks a thousand words, here is a visualisation:
 ![Architecture](/assets/posts/2018-09-13-API-Gateway-Types-Compared/architecture.png)
 
 # The original API Gateway: Edge Optimized
-At its release in July 2015 (read the [announcement](https://aws.amazon.com/blogs/aws/amazon-api-gateway-build-and-run-scalable-application-backends/)), API Gateway allowed access to Lambda and publicly available HTTP endpoints. At that time, Lambdas could not be placed in VPCs - this feature was [released](https://aws.amazon.com/blogs/aws/new-access-resources-in-a-vpc-from-your-lambda-functions/) in February 2016. In its initial version, API Gateway came paired with a CloudFront distribution. The combined API Gateway and CloudFront would later be called **Edge Optimized** API Gateway, refering to the Edge locations available in CloudFront.
+At its release in July 2015 (read the [announcement](https://aws.amazon.com/blogs/aws/amazon-api-gateway-build-and-run-scalable-application-backends/)), API Gateway allowed access to Lambda and publicly available HTTP endpoints. At that time, AWS Lambda Functions could not be placed in a VPC - this feature was [released](https://aws.amazon.com/blogs/aws/new-access-resources-in-a-vpc-from-your-lambda-functions/) in February 2016. In its initial version, API Gateway came paired with a CloudFront distribution. The combined API Gateway and CloudFront would later be called **Edge Optimized** API Gateway, refering to the Edge locations available in CloudFront.
 
 ![Edge Optimized](/assets/posts/2018-09-13-API-Gateway-Types-Compared/edge-optimized-1.png)
 
 Important details to remember regarding the first version of the Edge Optimized API Gateway:
-* It uses CloudFront distributions, but you *can't* edit the distribution. Adding a WAF, for example, is not possible.
+* It uses CloudFront distributions, but you *can't* edit the distribution. Adding a Amazon Web Application Firewall (WAF), for example, is not possible.
 * It can access other sources, but those sources have to be publicly accessible.
 
 # Regional API Gateways
@@ -41,7 +44,7 @@ Benefits to this variant are:
 * If your API Gateway is going to be accessed from the same AWS region, the Regional API Gateway will have less latency.
 
 # Integration with Private VPCs
-A big downside to API Gateway has alweays been that any HTTP backend behind the API Gateway needed to be publicly accessible. And because the public IP address of the API Gateway is unknown or unpredictable, IP whitelisting at the backend system was not a viable option. To solve this issue, Amazon [introduced](https://aws.amazon.com/about-aws/whats-new/2017/11/amazon-api-gateway-supports-endpoint-integrations-with-private-vpcs/) integration with private VPCs.
+A big downside to API Gateway has always been that any HTTP backend behind the API Gateway needed to be publicly accessible. And because the public IP address of the API Gateway is unknown or unpredictable, IP whitelisting at the backend system was not a viable option. Also in November 2017, Amazon [introduced](https://aws.amazon.com/about-aws/whats-new/2017/11/amazon-api-gateway-supports-endpoint-integrations-with-private-vpcs/) integration with private VPCs to solve this issue.
 
 The connection between your API Gateway and your private resources needs two parts:
 * A private Network Load Balancer (NLB) in your VPC in front of the resources you want to access
@@ -52,7 +55,7 @@ The connection between your API Gateway and your private resources needs two par
 Hurray! With this feature, API Gateway no longer demands your resources to be public and the security of your VPC-based resources is greatly enhanced.
 
 # Private API Gateways
-The integration with private VPC endpoints is an awesome improvement. However, there is still one major issue regarding the security of API Gateway: it is always publicly available. Of course you can implement authentication, rate limiting, API keys, WAF and [resource policies](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-resource-policies.html), but this still feels like a hack when your API Gateway is only used by your VPC-based resources or over AWS VPN. To solve this issue, AWS [introduced](https://aws.amazon.com/blogs/compute/introducing-amazon-api-gateway-private-endpoints/) the **Private** API Gateway in June 2018.
+The integration with private VPC endpoints is an awesome improvement. However, there is still one major issue regarding the security of API Gateway: it is always publicly available, which might not be what you require. If you are using API Gateway for internal services, you would prefer the API Gateway to be only accessible from your internal network. Of course you can implement authentication, rate limiting, API keys, WAF and [resource policies](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-resource-policies.html), but this still feels like a hack when your API Gateway is only used by your VPC-based resources or over AWS VPN. To solve this issue, AWS [introduced](https://aws.amazon.com/blogs/compute/introducing-amazon-api-gateway-private-endpoints/) the **Private** API Gateway in June 2018.
 
 The Private API Gateway is not publicly accessible or resolvable. Instead, it can only be accessed from within your VPC. To achieve this, AWS uses the [PrivateLink](https://aws.amazon.com/about-aws/whats-new/2017/11/introducing-aws-privatelink-for-aws-services/) technology. Diagram time!
 
@@ -64,7 +67,7 @@ Anyway, we digress. Back to API Gateway. By configuring an API Gateway as Privat
 
 There is one caveat: if you try to access a Private API Gateway over VPN or VPC Peering, the hostname for the API Gateway will not resolve at the other end. There are two solutions for this:
 * Use the VPC Endpoint's DNS, which is publicly resolvable. However, you do need to specify the `Host` Header. An example in cURL: `curl https://vpce-04dee3730b094b205-zg5cu7h2.execute-api.eu-central-1.vpce.amazonaws.com/test -H 'Host: oxppfikjm4.execute-api.eu-central-1.amazonaws.com'`
-* Place an Application Load Balancer with an SSL certificate (e.g. `api.mydomain.com`) in front of the IP addresses of your PrivateLink network interfaces. Also deploy a custom domain name for `api.mydomain.com` and a base path mapping for your API Gateway. Then add a Route 53 record that points `api.mydomain.com` as an alias to your ALB. This solution is quite complex, but we've tested it and it works. We might write a separate blog post about it later.
+* Place an Application Load Balancer with an SSL certificate (e.g. `api.mydomain.com`) in front of the IP addresses of your PrivateLink network interfaces. Also deploy a custom domain name for `api.mydomain.com` and a base path mapping for your API Gateway. Then add a Route 53 record that points `api.mydomain.com` as an alias to your ALB. This solution is quite complex, but we've tested it and it works. Describing the full solution is outside the scope of this post, but we might write a separate blog post about it later.
 
 # When to use which API Gateway
 We've discussed the three variants of API Gateway: Edge Optimized, Regional and Private. The big question is when to use which. Coincidentially, we made a flow chart for this!
@@ -72,7 +75,7 @@ We've discussed the three variants of API Gateway: Edge Optimized, Regional and 
 ![Flowchart](/assets/posts/2018-09-13-API-Gateway-Types-Compared/flowchart.png)
 
 # Performance
-We've described that the three API Gateways have very different access methodologies. Edge Optimized API Gateway uses CloudFront, Regional API Gateway uses direct access over the Internet and Private API Gateway uses PrivateLink technology. These technologies will have an effect on the latency of the API Gateway. We have run performance tests on each of the API Gateway types from locations around the world. You will find the results below.
+We've described that the three API Gateways have very different access methodologies. Edge Optimized API Gateway uses CloudFront, Regional API Gateway uses direct access over the Internet and Private API Gateway uses PrivateLink technology. These technologies will have an effect on the latency of the API Gateway. We have run performance tests on each of the API Gateway types from locations around the world. You will find the results below. The test are only focussed on network connectivity. Real application results - which will have more moving parts - will most likely differ from ours.
 
 A visual overview of the connection patterns for the three variants:
 ![Connections](/assets/posts/2018-09-13-API-Gateway-Types-Compared/connections.png)
@@ -150,4 +153,4 @@ But if either of these mechanisms are in place, we would expect the Edge Optimiz
 **Point 4**: Amazon's [documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-basic-concept.html) indicates that for in-region communication, using a Regional API Gateway "bypasses the unnecessary round trip to a CloudFront distribution". Because of this, we expected to see significant improvements here, but our tests did not show them. However, accessing a Regional API Gateway from within the same Region did yield the lowest reponse time of all our tests at 8ms.
 
 # Final word
-We hope that you enjoyed this post, and that the difference in performance and use cases between the three types of API Gateway have become more clear. If you have any questions or remarks, give the author a shout on [Twitter](https://twitter.com/donkersgood). 
+We hope that you enjoyed this post, and that the difference in performance and use cases between the three types of API Gateway have become more clear. If you have any questions or remarks, please reach out to us through our [Slack channel](http://www.sentialabs.io/contact.html).
