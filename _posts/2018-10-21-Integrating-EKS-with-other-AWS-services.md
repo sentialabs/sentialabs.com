@@ -9,7 +9,7 @@ EKS offers developers an easy way to run Kubernetes workloads at AWS. But what i
 
 For a recent project we needed to deploy a number of environments with EKS clusters. Each of these environments had different requirements regarding the supporting services; some needed API Gateway, some needed WAF, others needed CloudFront, and many required a combination of these services. We've worked to create a "one size fits all" deployment for EKS - a configuration that allows for integration with all of these services. You can find our results below.
 
-Re:Invent 2018 is being held in Las Vegas next week. We expect that AWS will announce more suported regions for EKS, leading to more EKS deployments in the near future. We hope this blog post will help you set up the integrations and complex configurations for all your use cases.
+Re:Invent 2018 is being held in Las Vegas next week. We expect that AWS will announce more supported regions for EKS, leading to more EKS deployments in the near future. We hope this blog post will help you set up the integrations and complex configurations for all your use cases.
 
 The challenges we will be discussing fall into two categories:
 - Reliably integrating HTTP frontend services (CloudFront, API Gateway and WAF) with EKS
@@ -19,16 +19,16 @@ The challenges we will be discussing fall into two categories:
 Elastic Container Service for Kubernetes (somehow abbreviated to EKS) is Amazon's implementation of a managed Kubernetes service. In a nutshell, Amazon provides the master nodes, you provide the worker nodes, you do some configuration, and voilà: you have a highly available, scalable, and relatively cheap Kubernetes cluster. 
 
 Some EKS specific features:
-- The workers nodes for EKS are provided by EC2 instances in an autoscaling group. Fargate support for EKS is expected to be released soon.
+- The worker nodes for EKS are provided by EC2 instances in an autoscaling group. Fargate support for EKS is expected to be released soon.
 - You can assign IAM roles to the worker nodes to allow interaction with other AWS services like CloudWatch and SQS.
 - You can use a magically altered version of kubectl to access Kubernetes with IAM credentials.
 - With [Kubernetes Autoscaler](https://github.com/kubernetes/autoscaler) EC2 nodes can be added to and removed from the cluster dynamically, based on the resources demanded by the Pods.
-- Using annotation, you can tell Kubernetes what kind of load balancers the to deploy in the AWS environment - either internal or internet-facing, and either Classic Load Balancer or Network Load Balancer.
+- Using annotation, you can tell Kubernetes what kind of load balancers to deploy in the AWS environment - either internal or internet-facing, and either Classic Load Balancer or Network Load Balancer.
 
 Does this sound awesome? Well, that's because it is. But it's not all unicorns and puppies in EKS land. Some integrations are a real hassle to set up. This post aims to help you achieve these more complex setups.
 
 ## First challenge: many services, many load balancers
-Within Kubernetes you can define services. From the official Kubernetes documentation: 
+Within Kubernetes you can define Services. From the official Kubernetes documentation: 
 > A Kubernetes Service is an abstraction which defines a logical set of Pods and a policy by which to access them - sometimes called a micro-service.
 
 Simply put, a Service is a collection of Pods. The Service is reachable at a consistent endpoint (either internal or external facing), no matter what happens to the underlying Pods.
@@ -54,9 +54,9 @@ spec:
 
 This would deploy a classic, internet facing load balancer.
 
-But what would happen if you defined five services? You would get five load balancers. And this is a problem when you want to deploy a frontend technology like the Web Application Firewall (WAF): it can only handle a single load balancer. API Gateway can handle multiple VPC Links, CloudFront can have multiple origins, but updating API Gateway or CloudFront every time you have a new service is very inconvenient. Also, when you would like to terminate a service, Kubernetes would be unable to clean up the load balancer because it would be in use by the frontend service.
+But what would happen if you defined five services? You would get five load balancers. And this is a problem when you want to deploy a frontend technology like the Web Application Firewall (WAF): it can only handle a single load balancer. API Gateway can handle multiple VPC Links, CloudFront can have multiple origins, but updating API Gateway or CloudFront every time you have a new service is very inconvenient. Also, when you would like to terminate a Service, Kubernetes would be unable to clean up the load balancer because it would be in use by the frontend service.
 
-The solution: use an [Ingress](https://github.com/kubernetes/ingress-nginx) service in Kubernetes. An Ingress is like a router or gateway for your cluster: you can define which traffic goes to which internal service, based on hostnames or paths. The Ingress service is the only publicly accessible component of your Kubernetes cluster. The backend services are only reachable from within the Kubernetes cluster (and as such, have no load balancers of their own).
+The solution: use an [Ingress](https://github.com/kubernetes/ingress-nginx) service in Kubernetes. An Ingress is like a router or gateway for your cluster: you can define which traffic goes to which internal service, based on hostnames or paths. The Ingress service is the only publicly accessible component of your Kubernetes cluster. The backend services are only reachable from within the Kubernetes cluster (and as such, have no AWS load balancers of their own).
 
 ![Ingress](/assets/posts/2018-10-21-Integrating-EKS-with-other-AWS-services/ingress.png)
 
@@ -102,7 +102,7 @@ In the world of AWS Elastic Load Balancers, there are two forms of connectivity:
 
 From a security and networking perspective, you need different infrastructure for private and public load balancers; private load balancers should be placed in subnets that do not have a route to an Internet Gateway (IGW), also called private subnets. Public load balancers can only function in subnets that *do* have a route to an IGW.
 
-Within Kubernetes, you can specify whether a load balancer should be public or private through annotation. If you add the annotation `    service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0` to a service, it will create an internal load balancer. To show this in context:
+Within Kubernetes, you can specify whether a load balancer should be public or private through annotation. If you add the annotation `service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0` to a service, it will create an internal load balancer. To show this in context:
 ```yaml
 kind: Service
 apiVersion: v1
@@ -145,7 +145,7 @@ kubernetes.io/cluster/<Your EKS cluster ID>: shared
 kubernetes.io/role/elb: 1
 ```
 
-When writing this article, documentation about these tags were very sparse. In fact we found the correct tags in the Kubernetes [source code](https://github.com/kubernetes/kubernetes/blob/master/pkg/cloudprovider/providers/aws/aws.go). If you're ever searching for undocumented functionality, we strongly advise to read through that file.
+When writing this article, documentation about these tags was very sparse. In fact we found the correct tags in the Kubernetes [source code](https://github.com/kubernetes/kubernetes/blob/master/pkg/cloudprovider/providers/aws/aws.go). If you're ever searching for undocumented functionality, we strongly advise to read through that file.
 
 To be flexible about deploying public or private load balancers for EKS, the easiest solution is to deploy both public and private subnets. That way, whatever you do from within Kubernetes, the cluster will have a place for its load balancers. If you're deploying in a region with three availability zones, this would mean creating six subnets.
 
@@ -153,7 +153,7 @@ A diagram displaying multiple subnets with an internal NLB deployed:
 ![Subnets](/assets/posts/2018-10-21-Integrating-EKS-with-other-AWS-services/subnets.png)
 
 ## Fourth challenge: getting WAF to work with an NLB
-Kubernetes is great for web services; you can easily create complex architectures for microservices, each scaling independently. You can add worker processes, scheduled processes and much more, all the while improving your development pace and security posture. But not all problems should be solved in Kubernetes. In general, specialistic services are better at solving specialistic tasks than generalistic solutions like Kubernetes are. For example, if you're hosting in AWS, you want to use RDS for relational databases, ElastiCache for in-memory caching and S3 for storage. You *could* provide all of these services within the cluster, but you shouldn't want to.
+Kubernetes is great for web services; you can easily create complex architectures for micro services, each scaling independently. You can add worker processes, scheduled processes and much more, all the while improving your development pace and security posture. But not all problems should be solved in Kubernetes. In general, specialistic services are better at solving specialistic tasks than generalistic solutions like Kubernetes are. For example, if you're hosting in AWS, you want to use RDS for relational databases, ElastiCache for in-memory caching and S3 for storage. You *could* provide all of these services within the cluster, but you shouldn't want to.
 
 Another example of a managed service doing its task a lot better than you probably ever could achieve yourself is AWS Web Application Firewall (WAF). It inspects all incoming traffic and can very quickly block attempts at SQL injection, cross site scripting, brute force attacks and much more.
 
@@ -676,6 +676,8 @@ AS you can see from the source code, this custom resource fetches the `VpcEndpoi
 },
 ```
 
+With this solution, our ALB is completely managed through CloudFormation, allowing us to specify its SSL certificates, security groups and more. Additionally, this allows us to integrate a WAF into the ALB, which was the goal we were trying to achieve.
+
 ## Ninth challenge: deploying the tagged subnets for load balancers
 
 As described above, the subnets for the load balancers need to be tagged for EKS to understand which type of load balancer to deploy where. In this chapter we will go through the steps required to do that.
@@ -789,6 +791,6 @@ The CFN template below shows an example of a tagged subnet. The `EksClusterResou
 The example above deploys a subnet for an `internal` load balancer. For `internet-facing` load balancers you just need to change the tags.
 
 ## Conclusion
-EKS is very powerful and super nice to use, but if you want to use it in conjunction with other AWS services there are quite some hoops to jump through. Luckily, nothing is impossible. We hope this blog post will help you achieve hosting your Kubernetes workloads on AWS.
+EKS is very powerful and super nice to use, but if you want to use it in conjunction with other AWS services there are quite some hoops to jump through. Luckily, nothing is impossible, although you have to get creative sometimes. We hope this blog post will help you achieve hosting your Kubernetes workloads on AWS.
 
 If you have any questions or remarks regarding this article you can reach out to the author on Twitter: [@donkersgood](https://twitter.com/donkersgood).
