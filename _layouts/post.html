@@ -1,4 +1,12 @@
 {% include header.html %}
+<script src="/assets/global/anchor.min.js"></script>
+<script src="/assets/global/jquery-3.3.1.min.js"></script>
+<script>
+  $(function () {
+    anchors.options.visible = 'always';
+    anchors.add('.post-content > h1, h2, h3, h4, h5, h6');
+  });
+</script>
 
 {% assign parents = site.pages |where_exp: "i", "page.belongs_to contains i.path" %}
 

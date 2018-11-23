@@ -15,6 +15,17 @@ The challenges we will be discussing fall into two categories:
 - Reliably integrating HTTP frontend services (CloudFront, API Gateway and WAF) with EKS
 - Using Infrastructure as Code (CloudFormation) to deploy resources that depend on EKS managed resources
 
+All the subjects covered in this blog post:
+- [Many services, many load balancers](#first-challenge-many-services-many-load-balancers)
+- [Classic load balancer, application load balancer or network load balancer?](#second-challenge-classic-load-balancer-application-load-balancer-or-network-load-balancer)
+- [Defining in which subnets your load balancers will be placed](#third-challenge-defining-in-which-subnets-your-load-balancers-will-be-placed)
+- [Getting WAF to work with an NLB](#fourth-challenge-getting-waf-to-work-with-an-nlb)
+- [Deploying API Gateway in front of EKS](#fifth-challenge-deploying-api-gateway-in-front-of-eks)
+- [Deploying CloudFront with EKS as its origin](#sixth-challenge-deploying-cloudfront-with-eks-as-its-origin)
+- [Integrating EKS managed resources with CloudFormation](#seventh-challenge-integrating-eks-managed-resources-with-cloudformation)
+- [Pointing an ALB to the IP addresses of the VPC Endpoint's ENIs](#eighth-challenge-pointing-an-alb-to-the-ip-addresses-of-the-vpc-endpoints-enis)
+- [Deploying the tagged subnets for load balancers](#ninth-challenge-deploying-the-tagged-subnets-for-load-balancers)
+
 ## About EKS
 Elastic Container Service for Kubernetes (somehow abbreviated to EKS) is Amazon's implementation of a managed Kubernetes service. In a nutshell, Amazon provides the master nodes, you provide the worker nodes, you do some configuration, and voilà: you have a highly available, scalable, and relatively cheap Kubernetes cluster. 
 
@@ -208,8 +219,10 @@ Our solution is taking a staggered deployment approach:
 1. Deploy an empty EKS Cluster with CFN
 2. Deploy a Lambda function that runs every minute (more about this later)
 3. Connect to EKS and deploy an Ingress with a Network Load Balancer as described in this blog post
-4. The lambda detects the load balancer created by EKS and stores its ARN in the Parameter Store
+4. The Lambda detects the load balancer created by EKS and stores its ARN in the Parameter Store
 5. Redeploy the CFN stacks, this time with API Gateway or ALB, using the ARN in the Parameter Store
+
+![Lambda](/assets/posts/2018-10-21-Integrating-EKS-with-other-AWS-services/lambda.png)
 
 The "magic" component in this setup is without a doubt the Lambda function. Here is the full source code:
 
