@@ -120,7 +120,6 @@ Then click Add a layer and fill in the ARN we copied in the previous step.
 ## Step 4: create the Omgrofl application
 Unfortunately, the Lambda console does not allow us to write inline code for custom runtimes. Therefore we will need to create a deployment package containing our Omgrofl application. To do this, create a new file called `hellolambda.omgrofl` with the following content:
 ```
-w00t a Hello, World! program by poiuy_qwert
 lol iz 72
 rofl lol
 lol iz 101
