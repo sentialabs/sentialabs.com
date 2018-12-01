@@ -145,7 +145,7 @@ lol iz 33
 rofl lol
 stfu
 ```
-Then zip this file by running `zip package.zip hellolambda.omgrofl` and uploading that file to your lambda. Don't forget to change the Handler to `hellolambda.omgrofl`. Now run the Lambda and you should get your first output!
+Then zip this file by running `zip package.zip hellolambda.omgrofl` and upload that file to your lambda. Don't forget to change the Handler to `hellolambda.omgrofl`. Now run the Lambda and you should get your first output!
 
 ![Run Lambda](/assets/posts/2018-11-30-Custom-Omgrofl-Lambda-Runtime/run.png)
 
