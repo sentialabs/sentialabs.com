@@ -7,13 +7,14 @@ author: mkianpour
 ---
 Although Machine Learning is not new but recently it is quickly going forward thanks to public cloud providers such as AWS. By introducing [SageMaker](https://aws.amazon.com/sagemaker/) AWS is making Machine Learning more accessible and even more affordable to developers and data scientists. When combined with other AWS services such as [Glue](https://aws.amazon.com/glue/) which facilitates data engineering, AWS becomes a perfect place for practicing and deploying machine learning applications.
 
-In this post we will not go over details of these services as AWS documentation is really informative and well organized. Instead we get our hands dirty by using them to see how they are useful for someone with little experience on Machine Learning. Most of the examples on AWS website are about image processing and I wanted to experience as much SageMaker tools and services as possible and from scratch. So, I defined a use-case of type text classification. We are a cloud company and it's important for us to know what's going on in public cloud! I want to build an analyzer who can say how much of the tweets posted on twitter about AWS are technical and how much marketing and commercial? The same with Azure so that no one says I'm biased!
+In this post we will not go over details of these services as AWS documentation is really informative and well organized. Instead we get our hands dirty by using them to see how they are useful for someone with little experience on Machine Learning. Most of the examples on AWS website are about image processing and I wanted to experience as much SageMaker tools and services as possible and from scratch. So, I defined a use-case of type text classification. We are a cloud company and it's important for us to know what's going on in public cloud! I want to build an analyzer who can say how much of the tweets posted on twitter about AWS are technical and how much marketing and commercial? The same with Azure so that no one says I'm biased! Anyway! Let's start!
 
-As all of you know, [Omgrofl](https://esolangs.org/wiki/Omgrofl) is an esoteric programming language. Using statements like `iz`, `iz uber`, `iz nope liek`, `wtf` and `lmao`, it allows you to write [Turing complete](https://esolangs.org/wiki/Turing-complete) applications. That being said.. you probably shouldn't.
+## Step 0: Collect Data
 
-In this blog post, we'll use Omgrofl to prove without a doubt that you can now use any programming language in Lambda.
+The following is a general overview of the procedure.
+![Overview](/assets/posts/2019-01-30-SageMaker-In-Action/sagemaker-overview.png)
 
-## Step 1: build a binary
+## Step 1: Prepare Training Data
 The Lambda runtimes require you to provide the binary that executes the source code. In our case, we can use the [Omgrofl compiler](https://github.com/mneudert/omgrofl-compiler) from Marc Neudert.
 
 The compiler is going to run in Lambda, so that's the architecture we should build it in. Navigate to the [Lambda Execution Environment and Available Libraries](https://docs.aws.amazon.com/lambda/latest/dg/current-supported-versions.html) page and launch the AMI mentioned there. Then SSH into it and download and unzip the compiler:
