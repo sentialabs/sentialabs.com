@@ -106,8 +106,12 @@ Anyway, the output of labeling job would be an augmented manifest file. It's act
 Now we have some labeled data which can be used by training jobs and ready to proceed with next step.
 
 ## Step 2: Prepare Training Data
-In theory we are ready to train our model. Let's have a look at the following diagram which shows a typical ML workflow:
-![ML workflow](/assets/posts/2019-01-30-SageMaker-In-Action/ml-concepts-10.png)
+In theory we are ready to train our model. Let's have a look at the following diagram which shows how training works:
+![ML workflow](/assets/posts/2019-01-30-SageMaker-In-Action/sagemaker-architecture-training-2.png)
+For a practical example using ready, labeled data you can see [AWS guide](https://docs.aws.amazon.com/sagemaker/latest/dg/ex1.html).
+
+If you follow AWS guides, you see that the key for all Machine Learning operations is a Notebook instance. Those who have worked with [Jupyter Notebooks](https://jupyter.org/) already know how it works. Using GUI provided by Notebooks you can easily test your code or visualize the results, ... Required tools and libraries for developers are installed on the underlying machine. 
+Recently AWS SageMaker added an option to use GUI
 
 https://stackoverflow.com/questions/53962146/configure-training-job-using-ground-truth-and-blazingtext-in-amazon-sagemaker
 
