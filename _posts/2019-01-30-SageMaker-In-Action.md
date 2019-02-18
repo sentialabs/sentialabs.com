@@ -273,3 +273,40 @@ text_classifier = bt_model.deploy(initial_instance_count = 1,instance_type = 'ml
 In Console, the model can be deployed by clicking on the model and then specifying instance type for the machine which will host the inference code and interact with the application:
 
 ![Deploy Model in Console](/assets/posts/2019-01-30-SageMaker-In-Action/endpoint-creation.png)
+
+## Step 4: Test, Verification and Fine tuning
+
+At this point we can test and verify our model by giving some inputs and see how it works. This is how we tested this model:
+```
+sentences = ["AWS Insider,2019-01-04 17:12:07,b'#Verizon DevKit Targets #IoT Projects on #AWS #Cloud https://t.co/1ThmnTN3LR #Amazon'"]
+
+# using the same nltk tokenizer that we used during data preparation for training
+tokenized_sentences = [' '.join(nltk.word_tokenize(sent)) for sent in sentences]
+
+payload = {"instances" : tokenized_sentences}
+
+response = text_classifier.predict(json.dumps(payload))
+
+predictions = json.loads(response)
+print(json.dumps(predictions, indent=2))
+```
+remember that `text_classifier` was logical name of the endpoint. The result is:
+```
+[
+  {
+    "prob": [
+      0.6029699444770813
+    ],
+    "label": [
+      "__label__technical"
+    ]
+  }
+]
+```
+I tried some more tweets and overall I was happy with the results.
+We can continue more test but now we went over the whole cycle of SageMaker which was the purpose of this blog post. If we are not satisfied with the results, we can try to achieve better results by reviewing and refining training dataset or changing hyperparameters for the algorithm or even better algorithms but again these are data science topics and out of the scope of this post.
+
+## Delete the Endpoint
+Remember that ML instances are expensive. So, if you are done with the experiment and it's not in production! better to delete the endpoint before getting surprised after seeing the invoice!
+
+As you see AWS SageMaker is taking a lot of heavy liftings from the shoulders of data engineers and data scientists and allows them to focus on their job. I also found it very useful for those who want to get a sense of Machine Learning and do some practices. I hope you have enjoyed this blog post and please let us know your feedback!
