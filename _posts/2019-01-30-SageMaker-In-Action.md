@@ -126,6 +126,8 @@ For this practice we will use an algorithm provided by AWS SageMaker to train th
 > "\__label__4".  linux ready for prime time , intel says , despite all the linux hype , the open-source movement has yet to make a huge splash in the desktop market . that may be about to change , thanks to chipmaking giant intel corp .
 \__label__2  bowled by the slower one again , kolkata , november 14 the past caught up with sourav ganguly as the indian skippers return to international cricket was short lived .
 
+### Step 2-1: Transforming Training Data
+
 If you look at our training data, you see that the format is different. Even if we want to use manifested file as input, still some data engineering is required to transform the data. To transfer and clean the data we used another great service by AWS: [AWS Glue](https://aws.amazon.com/glue/)
 We defined a Glue job to convert JSON file to a simple CSV as expected by our desired algorithm. It's pretty easy. As you see in the following picture we can easily map one field to a column in output or even remove unnecessary fields:
 
@@ -138,7 +140,120 @@ The result is the following which with a little tweak will be fit for BlazingTex
 0,"InfoSec Industry,2019-01-04 17:32:32,b'Kubernetes Security Issues (CVE-2018-18264 and kubectl proxy) https://t.co/Uxj1Q84f1N #AWS #infosec'"
 ```
 
-https://stackoverflow.com/questions/53962146/configure-training-job-using-ground-truth-and-blazingtext-in-amazon-sagemaker
+We can now move to next phase which is actual training a model.
 
+### Step 2-2: Training and Building the Model
 
-If you have any questions, or if you would like to share your own Lambda runtimes ([ArnoldC](https://github.com/lhartikk/ArnoldC), [Brainfuck](https://esolangs.org/wiki/Brainfuck) or [L33t](https://en.wikipedia.org/wiki/Leet_(programming_language)), anyone?), reach out to me on [Twitter]( https://twitter.com/donkersgood).
+To build the model we should have training code. Amazon SageMaker is quite flexible in using different algorithms. It also offers some ready to use algorithms. From [here](https://docs.aws.amazon.com/sagemaker/latest/dg/your-algorithms.html):
+
+>Amazon SageMaker algorithms are packaged as Docker images. This gives you the flexibility to use almost any algorithm code with Amazon SageMaker, regardless of implementation language, dependent libraries, frameworks, and so on.
+
+Here we use an available algorithm as mentioned: [BlazingText](https://docs.aws.amazon.com/sagemaker/latest/dg/blazingtext.html). We brought a Notebook up and use the algorithm to train the model. Bringing up a Jupyter Notebook is almost straight forward, as usual specify instance type and some AWS specific information such as VPC, encryption and most importantly IAM Role. When we have our Notebook running, we can run our code. You can see the whole notebook in [Github repository](https://github.com/mkianpour/twitter-machine-learning). The relevant code for training data is as follows:
+
+```python
+import sagemaker
+from sagemaker import get_execution_role
+import json
+import boto3
+import pandas as pd
+
+sess = sagemaker.Session()
+
+role = get_execution_role()
+print(role) # This is the role that SageMaker would use to leverage AWS resources (S3, CloudWatch) on your behalf
+
+bucket = "XYZ" # Replace with your own bucket name if needed
+print(bucket)
+data_key = 'twitter-data/hashtags/aws/2019-01-04/labeled.csv/hashtag-labeled-only-tweet.csv'
+data_location = 's3://{}/{}'.format(bucket, data_key)
+
+tweets = pd.read_csv(data_location)
+
+tweets.to_csv('tweets-labeled.csv', sep=',', header=None, index=False)
+
+prefix = 'twitter-data/marketing-model'
+
+index_to_label = {}
+#with open("dbpedia_csv/classes.txt") as f:
+#    for i,label in enumerate(f.readlines()):
+#        index_to_label[str(i+1)] = label.strip()
+index_to_label = {
+    "0": "technical",
+    "1": "marketing"
+}
+
+def transform_instance(row):
+    cur_row = []
+    label = "__label__" + index_to_label[row[0]]  #Prefix the index-ed label with __label__
+    cur_row.append(label)
+    cur_row.extend(nltk.word_tokenize(row[1].lower()))
+    return cur_row
+
+    def preprocess(input_file, output_file, keep=1):
+        all_rows = []
+        with open(input_file, 'r') as csvinfile:
+            csv_reader = csv.reader(csvinfile, delimiter=',')
+            for row in csv_reader:
+                all_rows.append(row)
+        shuffle(all_rows)
+        all_rows = all_rows[:int(keep*len(all_rows))]
+        pool = Pool(processes=multiprocessing.cpu_count())
+        transformed_rows = pool.map(transform_instance, all_rows)
+        pool.close()
+        pool.join()
+
+        with open(output_file, 'w') as csvoutfile:
+            csv_writer = csv.writer(csvoutfile, delimiter=' ', lineterminator='\n')
+            csv_writer.writerows(transformed_rows)
+
+preprocess('tweets-labeled.csv', 'tweets.train', keep=.8)
+preprocess('tweets-labeled.csv', 'tweets.validation')
+
+train_channel = prefix + '/train'
+validation_channel = prefix + '/validation'
+
+sess.upload_data(path='tweets.train', bucket=bucket, key_prefix=train_channel)
+sess.upload_data(path='tweets.validation', bucket=bucket, key_prefix=validation_channel)
+
+s3_train_data = 's3://{}/{}'.format(bucket, train_channel)
+s3_validation_data = 's3://{}/{}'.format(bucket, validation_channel)
+
+s3_output_location = 's3://{}/{}/output'.format(bucket, prefix)
+
+#training
+region_name = boto3.Session().region_name
+container = sagemaker.amazon.amazon_estimator.get_image_uri(region_name, "blazingtext", "latest")
+print('Using SageMaker BlazingText container: {} ({})'.format(container, region_name))
+
+bt_model = sagemaker.estimator.Estimator(container,
+                                         role,
+                                         train_instance_count=1,
+                                         train_instance_type='ml.c4.4xlarge',
+                                         train_volume_size = 30,
+                                         train_max_run = 360000,
+                                         input_mode= 'File',
+                                         output_path=s3_output_location,
+                                         sagemaker_session=sess)
+
+bt_model.set_hyperparameters(mode="supervised",
+                           epochs=10,
+                           min_count=2,
+                           learning_rate=0.05,
+                           vector_dim=10,
+                           early_stopping=True,
+                           patience=4,
+                           min_epochs=5,
+                           word_ngrams=2)
+
+train_data = sagemaker.session.s3_input(s3_train_data, distribution='FullyReplicated',
+                       content_type='text/plain', s3_data_type='S3Prefix')
+validation_data = sagemaker.session.s3_input(s3_validation_data, distribution='FullyReplicated',
+                            content_type='text/plain', s3_data_type='S3Prefix')
+data_channels = {'train': train_data, 'validation': validation_data}
+bt_model.fit(inputs=data_channels, logs=True)
+```
+
+If everything goes well we have our model at this point and it will be uploaded to output s3 bucket. The model can be seen in AWS Console too:
+
+![Training Model](/assets/posts/2019-01-30-SageMaker-In-Action/model-in-console.png)
+
