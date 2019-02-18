@@ -257,3 +257,19 @@ If everything goes well we have our model at this point and it will be uploaded 
 
 ![Training Model](/assets/posts/2019-01-30-SageMaker-In-Action/model-in-console.png)
 
+## Step 3: Deploying the Model
+
+Now we have the model and we need to deploy it so that we can use it in our application (inference code). The following diagram shows how it works:
+
+![Deploy Model](/assets/posts/2019-01-30-SageMaker-In-Action/sagemaker-architecture.png)
+
+We can deploy this model again by some lines of code in Notebook or in Console. In Notebook, following the code above it's as easy as:
+
+```
+text_classifier = bt_model.deploy(initial_instance_count = 1,instance_type = 'ml.m4.xlarge')
+
+```
+
+In Console, the model can be deployed by clicking on the model and then specifying instance type for the machine which will host the inference code and interact with the application:
+
+![Deploy Model in Console](/assets/posts/2019-01-30-SageMaker-In-Action/endpoint-creation.png)
