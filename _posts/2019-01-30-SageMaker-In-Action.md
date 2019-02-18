@@ -105,14 +105,38 @@ Anyway, the output of labeling job would be an augmented manifest file. It's act
 
 Now we have some labeled data which can be used by training jobs and ready to proceed with next step.
 
-## Step 2: Prepare Training Data
+## Step 2: Training the Model
 In theory we are ready to train our model. Let's have a look at the following diagram which shows how training works:
 ![ML workflow](/assets/posts/2019-01-30-SageMaker-In-Action/sagemaker-architecture-training-2.png)
 For a practical example using ready, labeled data you can see [AWS guide](https://docs.aws.amazon.com/sagemaker/latest/dg/ex1.html).
 
 If you follow AWS guides, you see that the key for all Machine Learning operations is a Notebook instance. Those who have worked with [Jupyter Notebooks](https://jupyter.org/) already know how it works. Using GUI provided by Notebooks you can easily test your code or visualize the results, ... Required tools and libraries for developers are installed on the underlying machine. We can use Notebooks to train the model but recently AWS SageMaker added an option to facilitate modeling without the need to launch a Notebook and do some development. We wanted to give it a try:
 
+![Training Job](/assets/posts/2019-01-30-SageMaker-In-Action/sagemaker-training-1.png)
 
+As you see you will get an interface which you can specify the algorithm to be used and also Hyperparameters which are related to that specific algorithm. By using training jobs GUI, you don't have much visibility to what happens in the background and the idea is that the model is created for you. My personal experience was that this option is not helpful and doesn't work as expected and because of the lack of visibility you can't troubleshoot. Out of curiosity I tried this option to create a model but I had no success after more than 20 tries! I contacted AWS Support and they confirmed that they could regenerate the errors I was getting and they started investigation but after 1 month they couldn't figure it out:
+
+>As an update, I am working with SageMaker Experts to figure out a workaround for the same. I will surely update you on the case the moment I will have something substantial to put forward to you.
+
+So, I forgot this way of running training jobs. The better way to run training jobs would be to use Jupyter Notebooks to have more control over the operations. Using Notebooks in SageMaker we can fetch training data and proper training code (as containers), launch AWS ML instances and last but not least use training data and training code on ML instances to train the model. It saves the resulting model artifacts and other output in the S3 bucket we specified for that purpose.
+
+For this practice we will use an algorithm provided by AWS SageMaker to train the model. The algorithm we chose is [BlazingText](https://docs.aws.amazon.com/sagemaker/latest/dg/blazingtext.html). Based on some investigation BlazingText algorithm can be used for text classification which fits our use case. The important thing is the input to the training code. Because we use available algorithms, the format of training data which is the input should follow the algorithm's specifications. As the guide for BlazingText reads:
+
+>For supervised mode, the training/validation file should contain a training sentence per line along with the labels. Labels are words that are prefixed by the string '\__label__'. Here is an example of a training/validation file:
+> "\__label__4".  linux ready for prime time , intel says , despite all the linux hype , the open-source movement has yet to make a huge splash in the desktop market . that may be about to change , thanks to chipmaking giant intel corp .
+\__label__2  bowled by the slower one again , kolkata , november 14 the past caught up with sourav ganguly as the indian skippers return to international cricket was short lived .
+
+If you look at our training data, you see that the format is different. Even if we want to use manifested file as input, still some data engineering is required to transform the data. To transfer and clean the data we used another great service by AWS: [AWS Glue](https://aws.amazon.com/glue/)
+We defined a Glue job to convert JSON file to a simple CSV as expected by our desired algorithm. It's pretty easy. As you see in the following picture we can easily map one field to a column in output or even remove unnecessary fields:
+
+![Glue Job](/assets/posts/2019-01-30-SageMaker-In-Action/glue-job.png)
+
+The result is the following which with a little tweak will be fit for BlazingText:
+```
+1,"Chidambara .ML.,2019-01-04 17:34:02,b'RT @ThingsExpo: CloudEXPO Silicon Valley Show Prospectus Published \n\nhttps://t.co/3QuZy0MwMl\n\n@Geek_King @TotalUptime #Cloud #IoT #IIoT #CI\xe2\x80\xa6'"
+1,"Ashot Nalbandyan,2019-01-04 17:33:00,b'RT @dr_vitus_zato: How to Growth Stack Your Product =&gt; https://t.co/RMUFZKoNN0 #javascript #vuejs #code #php #angular #reactjs #redux #css\xe2\x80\xa6'"
+0,"InfoSec Industry,2019-01-04 17:32:32,b'Kubernetes Security Issues (CVE-2018-18264 and kubectl proxy) https://t.co/Uxj1Q84f1N #AWS #infosec'"
+```
 
 https://stackoverflow.com/questions/53962146/configure-training-job-using-ground-truth-and-blazingtext-in-amazon-sagemaker
 
