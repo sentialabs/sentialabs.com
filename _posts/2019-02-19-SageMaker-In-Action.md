@@ -1,7 +1,7 @@
 ---
 layout: post
 title: AWS SageMaker In Action
-banner: /assets/posts/2019-02-19-SageMaker-In-Action/banner.png
+banner: /assets/posts/2019-02-19-SageMaker-In-Action/banner.jpg
 author: mkianpour
 
 ---
