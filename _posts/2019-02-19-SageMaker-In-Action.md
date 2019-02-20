@@ -27,7 +27,7 @@ sess = sagemaker.Session()
 role = get_execution_role()
 print(role) # This is the role that SageMaker would use to leverage AWS resources (S3, CloudWatch) on your behalf
 
-bucket = "XYZ" # Replace with your own bucket name if needed
+bucket = "XYZ" # Replace with your own bucket name
 print(bucket)
 data_key = 'twitter-data/hashtags/aws/2019-01-04/labeled.csv/hashtag-labeled-only-tweet.csv'
 data_location = 's3://{}/{}'.format(bucket, data_key)
@@ -39,9 +39,6 @@ tweets.to_csv('tweets-labeled.csv', sep=',', header=None, index=False)
 prefix = 'twitter-data/marketing-model'
 
 index_to_label = {}
-#with open("dbpedia_csv/classes.txt") as f:
-#    for i,label in enumerate(f.readlines()):
-#        index_to_label[str(i+1)] = label.strip()
 index_to_label = {
     "0": "technical",
     "1": "marketing"
@@ -172,6 +169,6 @@ I tried some more tweets and overall I was happy with the results.
 We can continue more test but now we went over the whole cycle of SageMaker which was the purpose of this blog post. If we are not satisfied with the results, we can try to achieve better results by reviewing and refining training dataset or changing hyperparameters for the algorithm or even better algorithms but again these are data science topics and out of the scope of this post.
 
 ## Delete the Endpoint
-Remember that ML instances are expensive. So, if you are done with the experiment and it's not in production! better to delete the endpoint before getting surprised after seeing the invoice!
+Remember that ML instances are expensive. So, if you are done with the experiment and it's not in production better to delete the endpoint before getting surprised after seeing the invoice!
 
 As you see AWS SageMaker is taking a lot of heavy liftings from the shoulders of data engineers and data scientists and allows them to focus on their job. I also found it very useful for those who want to get a sense of Machine Learning and do some practices. I hope you have enjoyed this blog post and please let us know your feedback!
