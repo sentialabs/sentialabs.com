@@ -17,7 +17,7 @@ So how can you solve this problem?
 Correlate all the data
 ----------------------
 
-At Sentialabs we have a great [post](http://www.sentialabs.io/2018/08/24/ecs-calculator.html) about how you can use CPU and Memory values for your services/containers proportional to the available values depending on the instance class you are using for your ECS cluster. When you do so, you automatically create a correlation for the 2 metrics. Subsequently, you can just use one of the 2 metrics to scale your container instances. The previous depends on depends on the workload your containers are running, it is a bit restrictive and requires effort and recalculation for the values when you want to change the class of your instances in the cluster.
+At Sentialabs we have a great [post](https://www.sentialabs.io/2018/05/25/ecs-calculator.html) about how you can use CPU and Memory values for your services/containers proportional to the available values depending on the instance class you are using for your ECS cluster. When you do so, you automatically create a correlation for the 2 metrics. Subsequently, you can just use one of the 2 metrics to scale your container instances. The previous depends on depends on the workload your containers are running, it is a bit restrictive and requires effort and recalculation for the values when you want to change the class of your instances in the cluster.
 
 But what if you can't follow the previous guidelines especially because your container profiling has shown that they require very extravagant custom values?
 
